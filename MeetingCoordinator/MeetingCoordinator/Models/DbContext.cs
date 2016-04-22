@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.Entity;
-using System.Data.Entity.Migrations.History;
 using System.Linq;
 using System.Web;
+using MySql.Data.Entity;
 
 namespace MeetingCoordinator.Models
 {
-    public class MySqlHistoryContext : HistoryContext
+    [DbConfigurationType(typeof(MySqlEFConfiguration))]
+    public class ApplicationDbContext : DbContext
     {
-        public MySqlHistoryContext(
-          DbConnection existingConnection,
-          string defaultSchema)
-        : base(existingConnection, defaultSchema)
-        {
-        }
+        public ApplicationDbContext() : base("DefaultConnection") { }
+        public DbSet<Meeting> Meetings { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Attendee> Attendees { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

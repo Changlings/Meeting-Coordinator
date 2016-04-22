@@ -172,26 +172,42 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
-    <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201604221536357_Initial.cs" />
-    <Compile Include="Migrations\201604221536357_Initial.Designer.cs">
-      <DependentUpon>201604221536357_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201604221736029_Init.cs" />
+    <Compile Include="Migrations\201604221736029_Init.Designer.cs">
+      <DependentUpon>201604221736029_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604221737187_Init_The_Return.cs" />
+    <Compile Include="Migrations\201604221737187_Init_The_Return.Designer.cs">
+      <DependentUpon>201604221737187_Init_The_Return.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604221748379_initial_electric_boogaloo.cs" />
+    <Compile Include="Migrations\201604221748379_initial_electric_boogaloo.Designer.cs">
+      <DependentUpon>201604221748379_initial_electric_boogaloo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604221752241_initial_electric_boogaloo_boogaloo_all_night.cs" />
+    <Compile Include="Migrations\201604221752241_initial_electric_boogaloo_boogaloo_all_night.Designer.cs">
+      <DependentUpon>201604221752241_initial_electric_boogaloo_boogaloo_all_night.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.cs" />
+    <Compile Include="Migrations\201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.Designer.cs">
+      <DependentUpon>201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Attendee.cs" />
+    <Compile Include="Models\DbContext.cs" />
+    <Compile Include="Models\Meeting.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MySqlConfiguration.cs" />
     <Compile Include="Models\MySqlHistoryContext.cs" />
     <Compile Include="Models\MySqlInitializer.cs" />
+    <Compile Include="Models\Room.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -277,8 +293,20 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201604221536357_Initial.resx">
-      <DependentUpon>201604221536357_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201604221736029_Init.resx">
+      <DependentUpon>201604221736029_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604221737187_Init_The_Return.resx">
+      <DependentUpon>201604221737187_Init_The_Return.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604221748379_initial_electric_boogaloo.resx">
+      <DependentUpon>201604221748379_initial_electric_boogaloo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604221752241_initial_electric_boogaloo_boogaloo_all_night.resx">
+      <DependentUpon>201604221752241_initial_electric_boogaloo_boogaloo_all_night.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.resx">
+      <DependentUpon>201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
