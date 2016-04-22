@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -28,6 +29,23 @@ namespace MeetingCoordinator.Models
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            if (modelBuilder == null)
+            {
+                throw new ArgumentNullException("modelBuilder");
+            }
+
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>().Property(u => u.UserName).HasMaxLength(128);
+
+            //Uncomment this to have Email length 128 too (not neccessary)
+            //modelBuilder.Entity<ApplicationUser>().Property(u => u.Email).HasMaxLength(128);
+
+            modelBuilder.Entity<IdentityRole>().Property(r => r.Name).HasMaxLength(128);
         }
     }
 }
