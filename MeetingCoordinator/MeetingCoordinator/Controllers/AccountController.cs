@@ -36,6 +36,7 @@ namespace MeetingCoordinator.Controllers
         public ActionResult UserLogin()
         {
             Console.WriteLine("debug");
+            return View();
         }
 
 
