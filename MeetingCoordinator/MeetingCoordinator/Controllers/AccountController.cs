@@ -32,6 +32,13 @@ namespace MeetingCoordinator.Controllers
             return View();
         }
 
+        [AcceptVerbs(HttpVerbs.Post)]
+        public ActionResult UserLogin()
+        {
+            Console.WriteLine("debug");
+        }
+
+
        
         #region Helpers
         // Used for XSRF protection when adding external logins
