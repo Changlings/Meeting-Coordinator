@@ -9,8 +9,7 @@ namespace MeetingCoordinator.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
-            SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
+            AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(MeetingCoordinator.Models.ApplicationDbContext context)
@@ -27,6 +26,14 @@ namespace MeetingCoordinator.Migrations
             //      new Person { FullName = "Rowan Miller" }
             //    );
             //
+
+            context.Attendees.AddOrUpdate(
+                a => a.Username,
+                new Models.Attendee { FirstName = "William", LastName = "Curry", Username = "wcc17", Password = "password" },
+                new Models.Attendee { FirstName = "Wes", LastName = "Gilleland", Username = "wes", Password = "password1234" },
+                new Models.Attendee { FirstName = "Melinda", LastName = "Cundiff", Username = "melinda64", Password = "hotdog" },
+                new Models.Attendee { FirstName = "Jeremy", LastName = "Rice", Username = "talnius", Password = "hotdog1234" }
+             );
         }
     }
 }
