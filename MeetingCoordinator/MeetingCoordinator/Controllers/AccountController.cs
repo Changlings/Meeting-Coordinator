@@ -12,11 +12,16 @@ using Microsoft.Owin.Security;
 using MeetingCoordinator.Models;
 using Newtonsoft.Json.Linq;
 
+using System.Security.Cryptography;
+using System.Text;
+
 namespace MeetingCoordinator.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         public AccountController()
         {
@@ -32,10 +37,50 @@ namespace MeetingCoordinator.Controllers
             return View();
         }
 
-        [AcceptVerbs(HttpVerbs.Post)]
-        public ActionResult UserLogin()
+        //this will only be called if the username and password fields are not empty when submit button is pressed
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult Login(LoginViewModel model)
         {
-            Console.WriteLine("debug");
+            Attendee attendee = db.Attendees.First(u => u.Username == model.Username);
+
+            //if the attendee user name is found
+            bool loginSuccessful = false;
+            if (attendee.Username == model.Username)
+            {
+                //get the attendees hashed password
+                String hashedPassword = hashSha256(model.Password);
+                if (attendee.Password == hashedPassword)
+                {
+                    loginSuccessful = true;
+                }
+            }
+
+            if(loginSuccessful)
+            {
+                //redirect(?) to home screen for logged in user
+            } else
+            {
+                //show error
+            }
+            return null;
+        }
+
+        public String hashSha256(String password)
+        {
+            SHA256Managed crypt = new SHA256Managed();
+            System.Text.StringBuilder hash = new System.Text.StringBuilder();
+
+            //TODO: people were reporting problems with using ASCII as the encoding scheme, but I don't know enough to say that UTF8 is the correct choice for us
+            byte[] hashBytes = crypt.ComputeHash(Encoding.UTF8.GetBytes(password), 0, Encoding.UTF8.GetByteCount(password));
+
+            foreach(byte b in hashBytes)
+            {
+                //each byte as two uppercase hex characters
+                hash.Append(b.ToString("x2"));
+            }
+
+            return hash.ToString();
         }
 
 
