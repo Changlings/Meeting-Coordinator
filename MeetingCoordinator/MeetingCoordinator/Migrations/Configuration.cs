@@ -39,6 +39,11 @@ namespace MeetingCoordinator.Migrations
                 new Models.Attendee { FirstName = "Melinda", LastName = "Cundiff", Username = "melinda64", Password = "35602208e86ac7d6b3a63780a9538a9d1763a646d5b9f3930a0548e0983e0ca6" },
                 new Models.Attendee { FirstName = "Jeremy", LastName = "Rice", Username = "talnius", Password = "4a969b0fb995b002a31f7f50742e6c83687fd9d67aa2c11f9eb88caaeb05c783" }
              );
+
+            context.Rooms.AddOrUpdate(
+                r => r.RoomNo,
+                new Models.Room { Capacity = 20, RoomNo="WALL445"}
+                );
         }
     }
 }

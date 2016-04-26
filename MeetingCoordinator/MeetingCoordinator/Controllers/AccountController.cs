@@ -22,7 +22,7 @@ namespace MeetingCoordinator.Controllers
     {
 
         private ApplicationDbContext db = new ApplicationDbContext();
-
+        private IAuthenticationManager Authentication => HttpContext.GetOwinContext().Authentication;
         public AccountController()
         {
         }
@@ -42,28 +42,43 @@ namespace MeetingCoordinator.Controllers
         [AllowAnonymous]
         public ActionResult Login(LoginViewModel model)
         {
-            Attendee attendee = db.Attendees.First(u => u.Username == model.Username);
+            Attendee attendee = null;
+            try
+            {
+               attendee = db.Attendees.First(u => u.Username == model.Username);
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, "No User by that name");
+                return View(model);
+            }
 
             //if the attendee user name is found
-            bool loginSuccessful = false;
             if (attendee.Username == model.Username)
             {
                 //get the attendees hashed password
                 String hashedPassword = hashSha256(model.Password);
                 if (attendee.Password == hashedPassword)
                 {
-                    loginSuccessful = true;
+                    
+                    var identity = new ClaimsIdentity(
+                        new []
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, $"{attendee.ID}"),
+                            new Claim(ClaimTypes.Role, "attendee"), 
+                        }, DefaultAuthenticationTypes.ApplicationCookie,
+                        ClaimTypes.NameIdentifier, ClaimTypes.Role);
+                    Authentication.SignIn(new AuthenticationProperties
+                    {
+                        IsPersistent = model.RememberMe
+                    }, identity);
+
+                    return RedirectToAction("Index", "Home");
                 }
             }
 
-            if(loginSuccessful)
-            {
-                //redirect(?) to home screen for logged in user
-            } else
-            {
-                //show error
-            }
-            return null;
+            ModelState.AddModelError(string.Empty, "Invalid login credentials");
+            return View(model);
         }
 
         public String hashSha256(String password)
