@@ -18,6 +18,8 @@ namespace MeetingCoordinator.Models
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Properties<String>().Configure(c => c.HasColumnType("longtext"));
+//            modelBuilder.Entity<Attendee>().HasMany(x => x.AttendingMeetings).WithRequired().HasForeignKey(x => x.ID);
+//            modelBuilder.Entity<Attendee>().HasMany(x => x.OwnMeetings).WithRequired().HasForeignKey(x => x.ID);
             base.OnModelCreating(modelBuilder);
         }
     }

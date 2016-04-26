@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using MeetingCoordinator.Models;
+using MySql.Data.Entity;
+
 namespace MeetingCoordinator.Migrations
 {
     using System;
@@ -42,8 +46,30 @@ namespace MeetingCoordinator.Migrations
 
             context.Rooms.AddOrUpdate(
                 r => r.RoomNo,
-                new Models.Room { Capacity = 20, RoomNo="WALL445"}
-                );
+                new Models.Room { Capacity = 20, RoomNo="WALL445"},
+                new Models.Room { Capacity = 25, RoomNo="WALL455"},
+                new Models.Room { Capacity = 23, RoomNo="WALL325"},
+                new Models.Room { Capacity = 30, RoomNo="COMB329"}
+            );
+            Attendee owner = context.Attendees.First(u => u.FirstName == "Wes");
+            Attendee[] attendees = new Attendee[]
+            {
+                context.Attendees.First(a => a.FirstName == "William"),
+                context.Attendees.First(a => a.FirstName == "Melinda")
+            };
+            context.Meetings.AddOrUpdate(
+                m => m.ID,
+                new Models.Meeting
+                {
+                    Attendees = attendees,
+                    Description = "This is a test meeting!",
+                    EndTime = new DateTime(2016, 4, 30, 12, 30, 0),
+                    StartTime = new DateTime(2016, 4, 30, 12, 0, 0),
+                    HostingRoom = context.Rooms.First(r => r.RoomNo == "WALL445"),
+                    Owner = owner,
+                    Title = "Test Case: Please Ignore"
+                }
+             );
         }
     }
 }

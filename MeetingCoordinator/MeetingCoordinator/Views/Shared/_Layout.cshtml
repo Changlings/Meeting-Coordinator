@@ -12,54 +12,64 @@
     @RenderSection("styles", required: false)
 </head>
 <body class="">
-    <!-- BEGIN HEADER-->
-    <div class="header navbar navbar-inverse">
-        <!-- BEGIN TOP NAVIGATION BAR -->
-        <div class="navbar-inner">
-            @Html.Partial("_NavigationHeaderPartial")
-            @Html.Partial("_ContentHeaderPartial")
-        </div>
-        <!-- END TOP NAVIGATION BAR -->
+<!-- BEGIN HEADER-->
+<div class="header navbar navbar-inverse">
+    <!-- BEGIN TOP NAVIGATION BAR -->
+    <div class="navbar-inner">
+        @Html.Partial("_NavigationHeaderPartial")
+        @Html.Partial("_ContentHeaderPartial")
     </div>
-    <!-- END HEADER -->
-    <!-- BEGIN CONTENT -->
-    <div class="page-container row-fluid">
-        @Html.Partial("_SidebarPartial")
-        <!-- BEGIN PAGE CONTAINER -->
-        <div class="page-content">
-            <div class="content">
-                @Html.Partial("_CreateMeetingPartial")
-                @RenderBody()
-            </div>
+    <!-- END TOP NAVIGATION BAR -->
+</div>
+<!-- END HEADER -->
+<!-- BEGIN CONTENT -->
+<div class="page-container row-fluid">
+    @Html.Partial("_SidebarPartial")
+    <!-- BEGIN PAGE CONTAINER -->
+    <div class="page-content">
+        <div class="content">
+            @Html.Partial("_CreateMeetingPartial")
+            @RenderBody()
         </div>
-        <!-- END PAGE CONTAINER -->
     </div>
-    <!-- END CONTENT-->
-    @Scripts.Render("~/bundles/javascript")
-    @RenderSection("scripts", required: false)
-    <script>
-        $(document).ready(function() {
-            $('#schedule-meeting-sidebar').click(function (e) {
-                var $meeting = $('#meeting-create');
-                $meeting.find('input, textarea').each(function(index, element) {
-                    $(element).val("");
-                });
-                $meeting.find('option').each(function(index, element) {
-                    $(element).attr("selected", false);
-                });
-                $meeting.modal("show");
+    <!-- END PAGE CONTAINER -->
+</div>
+<!-- END CONTENT-->
+@Scripts.Render("~/bundles/javascript")
+@RenderSection("scripts", required: false)
+<script>
+    $(document).ready(function () {
+        $('#schedule-meeting-sidebar').click(function (e) {
+            var $meeting = $('#meeting-create');
+            $meeting.find('input, textarea').each(function (index, element) {
+                $(element).val("");
             });
-
-            $('#save-new-meeting').click(function (e) {
-                alert("Meeting created!");
-                var meeting_id = $('.external-event').length + 1;
-                $('#external-events').append('<div class="external-event">' +
-                        '<span class="meeting" data-title="Meeting '+meeting_id+'" data-attendees="" data-id="'+meeting_id+'">Meeting '+meeting_id+'</span>' +
-                        '<span class="delete-meeting pull-right"><i class="fa fa-times"></i></span>' +
-                        '</div>');
-                $('#meeting-create').modal('hide');
+            $meeting.find('option').each(function (index, element) {
+                $(element).attr("selected", false);
             });
+            $meeting.modal("show");
         });
-    </script>
+
+        $('#save-new-meeting').click(function (e) {
+            alert("Meeting created!");
+            var meeting_id = $('.external-event').length + 1;
+            $('#external-events').append('<div class="external-event">' +
+                    '<span class="meeting" data-title="Meeting ' + meeting_id + '" data-attendees="" data-id="' + meeting_id + '">Meeting ' + meeting_id + '</span>' +
+                    '<span class="delete-meeting pull-right"><i class="fa fa-times"></i></span>' +
+                    '</div>');
+            $.ajax({
+                data: $('#meeting-create').find('form').serialize(),
+                url: "/Meetings/Schedule",
+                method: "post",
+                async: true,
+                success: function (stuff) {
+                    // request was successful, do stuff here
+
+                }
+            });
+            $('#meeting-create').modal('hide');
+        });
+    });
+</script>
 </body>
 </html>
