@@ -179,25 +179,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201604221736029_Init.cs" />
-    <Compile Include="Migrations\201604221736029_Init.Designer.cs">
-      <DependentUpon>201604221736029_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604221737187_Init_The_Return.cs" />
-    <Compile Include="Migrations\201604221737187_Init_The_Return.Designer.cs">
-      <DependentUpon>201604221737187_Init_The_Return.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604221748379_initial_electric_boogaloo.cs" />
-    <Compile Include="Migrations\201604221748379_initial_electric_boogaloo.Designer.cs">
-      <DependentUpon>201604221748379_initial_electric_boogaloo.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604221752241_initial_electric_boogaloo_boogaloo_all_night.cs" />
-    <Compile Include="Migrations\201604221752241_initial_electric_boogaloo_boogaloo_all_night.Designer.cs">
-      <DependentUpon>201604221752241_initial_electric_boogaloo_boogaloo_all_night.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.cs" />
-    <Compile Include="Migrations\201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.Designer.cs">
-      <DependentUpon>201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.cs</DependentUpon>
+    <Compile Include="Migrations\201604270211579_initial_migration.cs" />
+    <Compile Include="Migrations\201604270211579_initial_migration.Designer.cs">
+      <DependentUpon>201604270211579_initial_migration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -294,20 +278,8 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201604221736029_Init.resx">
-      <DependentUpon>201604221736029_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604221737187_Init_The_Return.resx">
-      <DependentUpon>201604221737187_Init_The_Return.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604221748379_initial_electric_boogaloo.resx">
-      <DependentUpon>201604221748379_initial_electric_boogaloo.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604221752241_initial_electric_boogaloo_boogaloo_all_night.resx">
-      <DependentUpon>201604221752241_initial_electric_boogaloo_boogaloo_all_night.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.resx">
-      <DependentUpon>201604221755406_initial_electric_boogaloo_have_we_boogalooed_enough.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201604270211579_initial_migration.resx">
+      <DependentUpon>201604270211579_initial_migration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

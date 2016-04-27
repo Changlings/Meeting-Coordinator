@@ -18,8 +18,23 @@ namespace MeetingCoordinator.Models
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Properties<String>().Configure(c => c.HasColumnType("longtext"));
-//            modelBuilder.Entity<Attendee>().HasMany(x => x.AttendingMeetings).WithRequired().HasForeignKey(x => x.ID);
-//            modelBuilder.Entity<Attendee>().HasMany(x => x.OwnMeetings).WithRequired().HasForeignKey(x => x.ID);
+
+            //each meeting has multiple attendees and each attendee has multiple meetings
+            modelBuilder.Entity<Attendee>()
+                .HasMany<Meeting>(a => a.AttendingMeetings)
+                .WithMany(m => m.Attendees)
+                .Map(mc =>
+                {
+                    mc.ToTable("AttendeeJoinMeeting");
+                    mc.MapLeftKey("AttendeeId");
+                    mc.MapRightKey("MeetingId");
+                });
+
+            //each meeting has one owner. but each attendee can own multiple meetings
+            modelBuilder.Entity<Meeting>()
+                .HasRequired<Attendee>(m => m.Owner)
+                .WithMany(a => a.OwnMeetings);
+
             base.OnModelCreating(modelBuilder);
         }
     }

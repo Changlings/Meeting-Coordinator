@@ -7,13 +7,13 @@ namespace MeetingCoordinator.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class initial_electric_boogaloo : IMigrationMetadata
+    public sealed partial class initial_migration : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(initial_electric_boogaloo));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(initial_migration));
         
         string IMigrationMetadata.Id
         {
-            get { return "201604221748379_initial_electric_boogaloo"; }
+            get { return "201604270211579_initial_migration"; }
         }
         
         string IMigrationMetadata.Source
