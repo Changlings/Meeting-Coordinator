@@ -73,10 +73,6 @@ namespace MeetingCoordinator.Migrations
                     Title = "Test Case: Please Ignore"
                 }
              );
-
-            if (System.Diagnostics.Debugger.IsAttached == false)
-                System.Diagnostics.Debugger.Launch();
-
         }
     }
 }
