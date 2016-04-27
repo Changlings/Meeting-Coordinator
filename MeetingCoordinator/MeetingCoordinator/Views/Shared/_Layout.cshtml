@@ -75,6 +75,37 @@
             });
             $('#meeting-create').modal('hide');
         });
+
+        $('#start-time-input, #end-time-input').on({
+            change: function (event) {
+                var start_time = $('#start-time-input').val();
+                var end_time = $('#end-time-input').val();
+                if (start_time !== "" && end_time !== "") {
+                    start_time = start_time.replace("T", " ");
+                    end_time = end_time.replace("T", " ");
+                    $.ajax({
+                        data: {
+                            end_time: end_time,
+                            start_time: start_time
+                        },
+                        url: "/Home/CheckTimes",
+                        type: "POST",
+                        async: true,
+                        dataType: "json",
+                        success: function (data, status) {
+                            if (data['rooms']) {
+                                var meeting_room_select = $('#meeting-create').find('select[name=meeting-room]');
+                                meeting_room_select.empty();
+                                for (var i = 0; i < data['rooms'].length; i++) {
+                                    meeting_room_select.append('<option value="' + data['rooms'][i]['id'] + '">' + data['rooms'][i]['roomno'] + '</option>');
+                                }
+                                meeting_room_select.enable();
+                            }
+                        }
+                    })
+                }
+            }
+        })
     });
 </script>
 </body>
