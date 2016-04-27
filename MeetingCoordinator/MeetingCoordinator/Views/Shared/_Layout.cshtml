@@ -50,6 +50,11 @@
             $meeting.modal("show");
         });
 
+        //$('#start-date-input').click(function () {
+        //    alert("WHATEVER");
+        //});
+        
+
         $('#save-new-meeting').click(function (e) {
             alert("Meeting created!");
             var meeting_id = $('.external-event').length + 1;
@@ -59,8 +64,9 @@
                     '</div>');
             $.ajax({
                 data: $('#meeting-create').find('form').serialize(),
-                url: "/Meetings/Schedule",
-                method: "post",
+                url: "/Home/Schedule",
+                type: "post",
+                dataType: "json",
                 async: true,
                 success: function (stuff) {
                     // request was successful, do stuff here

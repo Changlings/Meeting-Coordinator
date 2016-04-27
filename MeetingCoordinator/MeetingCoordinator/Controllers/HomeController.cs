@@ -29,5 +29,26 @@ namespace MeetingCoordinator.Controllers
 
             return View();
         }
+
+        [HttpPost]
+        public void Schedule()
+        {
+            String title;
+            String description;
+            String startTime;
+            String endTime;
+
+            try
+            {
+                title = Request.Form["title"];
+                description = Request.Form["description"];
+                startTime = Request.Form["start-time"];
+                endTime = Request.Form["end-time"];
+            }
+            catch (Exception e)
+            {
+                //exception encountered
+            }
+        }
     }
 }
