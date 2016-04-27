@@ -52,6 +52,8 @@ namespace MeetingCoordinator.Migrations
                 new Models.Room { Capacity = 30, RoomNo = "COMB329" }
             );
 
+            context.SaveChanges();
+
             Attendee owner = context.Attendees.First(u => u.FirstName == "Wes");
 
             Attendee[] attendees = new Attendee[]
