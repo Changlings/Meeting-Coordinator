@@ -1,4 +1,5 @@
-﻿<!--formatter:off-->
+﻿@using MeetingCoordinator.Models
+<!--formatter:off-->
 @{
     ViewBag.Title = "Home Page";
 }
@@ -70,7 +71,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="save-meeting">Save changes</button>
+                <button type="button" class="btn btn-primary" id="save-meeting-edit">Save changes</button>
                 <button type="button" class="btn btn-danger" id="delete-meeting" data-meeting-id="">Delete Meeting
                 </button>
             </div>
@@ -109,28 +110,17 @@
                     <h2 class="text-white" id="calender-current-date"></h2>
                     <div id="external-events" class="events-wrapper">
                         <div class="events-heading">Upcoming Meetings</div>
-                        @*When this is made dynamic, replace all the data-* attributes with ids and look up based on id
-                        with an AJAX call to the controller*@
-                        <div class="external-event">
-                            <span class="meeting" data-title="Meeting 1" data-attendees="1,3,5"
-                                  data-id="1">Meeting 1</span>
-                            <span class="pull-right"><i class="edit-meeting fa fa-pencil"></i><i
-                                    style="padding-left: 5px; padding-right: 5px;"></i><i
-                                    class="delete-meeting fa fa-times"></i></span>
-                        </div>
-                        <div class="external-event">
-                            <span class="meeting" data-title="Meeting 2" data-attendees="1" data-id="2">Meeting 2</span>
-                            <span class="pull-right"><i class="edit-meeting fa fa-pencil"></i><i
-                                    style="padding-left: 5px; padding-right: 5px;"></i><i
-                                    class="delete-meeting fa fa-times"></i></span>
-                        </div>
-                        <div class="external-event">
-                            <span class="meeting" data-title="Meeting 3" data-attendees="2,4,5"
-                                  data-id="3">Meeting 3</span>
-                            <span class="pull-right"><i class="edit-meeting fa fa-pencil"></i><i
-                                    style="padding-left: 5px; padding-right: 5px;"></i><i
-                                    class="delete-meeting fa fa-times"></i></span>
-                        </div>
+                        @foreach (Meeting meeting in ViewBag.meetings)
+                        {
+                            <div class="external-event">
+                                <span class="meeting" data-title="@meeting.Title" data-attendees="@string.Join(",", meeting.Attendees.AsEnumerable().Select(m => m.ID).ToArray())" data-id="@meeting.ID">
+                                    @meeting.Title
+                                </span>
+                                <span class="pull-right">
+                                    <i class="edit-meeting fa fa-pencil"></i><i style="padding-left: 5px; padding-right: 5px;"></i><i class="delete-meeting fa fa-times"></i>
+                                </span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

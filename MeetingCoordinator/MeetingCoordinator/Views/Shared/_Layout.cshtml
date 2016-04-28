@@ -53,7 +53,7 @@
         //$('#start-date-input').click(function () {
         //    alert("WHATEVER");
         //});
-        
+
 
         $('#save-new-meeting').click(function (e) {
             alert("Meeting created!");
@@ -74,6 +74,13 @@
                 }
             });
             $('#meeting-create').modal('hide');
+        });
+
+        $('#save-meeting-edit').click(function(e){
+            $.ajax({
+                data: $('#meeting-edit').find('form').serialize(),
+                url: "/Home/Edit"
+            })
         });
 
         $('#start-time-input, #end-time-input').on({
