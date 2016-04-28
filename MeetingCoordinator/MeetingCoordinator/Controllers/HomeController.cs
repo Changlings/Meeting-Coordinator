@@ -34,29 +34,14 @@ namespace MeetingCoordinator.Controllers
             return View();
         }
 
+        /*
+        I can't think of a good reason not to go ahead and also load the attendees here.
+        Otherwise we would go through all meetings to get available rooms,
+        Let the user choose the room (which has no affect on the attendees that can attend at that point)
+        then going through all the meetings again to get the attendees. So we get the attendees here
+        */
         [HttpPost]
-        public void Schedule()
-        {
-            String title;
-            String description;
-            String startTime;
-            String endTime;
-
-            try
-            {
-                title = Request.Form["title"];
-                description = Request.Form["description"];
-                startTime = Request.Form["start-time"];
-                endTime = Request.Form["end-time"];
-            }
-            catch (Exception e)
-            {
-                //exception encountered
-            }
-        }
-
-        [HttpPost]
-        public ActionResult CheckTimes()
+        public ActionResult CheckAvailability()
         {
             String startDateTimeString;
             String endDateTimeString;
@@ -68,6 +53,7 @@ namespace MeetingCoordinator.Controllers
             DateTime endDateTime = DateTime.Parse(endDateTimeString);
 
             List<Room> availableRooms = new List<Room>();
+            List<Attendee> availableAttendees = new List<Attendee>();
             availableRooms.AddRange(db.Rooms);
             foreach(Meeting m in db.Meetings)
             {
@@ -76,28 +62,30 @@ namespace MeetingCoordinator.Controllers
                 if one meeting starts at 2:00 and ends at 3:00 and the next starts at 3:00,
                 then this will return a conflict. Is this the behavior we want?
                 */
-                if(startDateTime <= m.EndTime && m.StartTime <= endDateTime)
+                if (startDateTime < endDateTime)
                 {
-                    if(availableRooms.Contains(m.HostingRoom))
+                    if (startDateTime <= m.EndTime && m.StartTime <= endDateTime)
                     {
-                        availableRooms.Remove(m.HostingRoom);
+                        //if the room is taken, remove it from our list of room choices
+                        if (availableRooms.Contains(m.HostingRoom))
+                        {
+                            availableRooms.Remove(m.HostingRoom);
+                        }
+
+                        //if an attendee has this meeting in their list of meetings, remove the attendee from our list of attendee choices
                     }
                 }
+
+
             }
 
-            var serializer = new JavaScriptSerializer();
-            var list = serializer.Serialize(availableRooms);
             JsonResult result = Json(new
             {
                 status = true,
-                data = new
-                {
-                    rooms = list
-                }
+                rooms = Json(availableRooms)
             });
 
             return result;
         }
-
     }
 }

@@ -50,11 +50,6 @@
             $meeting.modal("show");
         });
 
-        //$('#start-date-input').click(function () {
-        //    alert("WHATEVER");
-        //});
-        
-
         $('#save-new-meeting').click(function (e) {
             alert("Meeting created!");
             var meeting_id = $('.external-event').length + 1;
@@ -62,17 +57,18 @@
                     '<span class="meeting" data-title="Meeting ' + meeting_id + '" data-attendees="" data-id="' + meeting_id + '">Meeting ' + meeting_id + '</span>' +
                     '<span class="delete-meeting pull-right"><i class="fa fa-times"></i></span>' +
                     '</div>');
-            $.ajax({
-                data: $('#meeting-create').find('form').serialize(),
-                url: "/Home/Schedule",
-                type: "post",
-                dataType: "json",
-                async: true,
-                success: function (stuff) {
-                    // request was successful, do stuff here
+            //$.ajax({
+            //    data: $('#meeting-create').find('form').serialize(),
+            //    url: "/Home/Schedule",
+            //    type: "post",
+            //    dataType: "json",
+            //    async: true,
+            //    success: function (stuff) {
+            //        // request was successful, do stuff here
 
-                }
-            });
+            //    }
+            //});
+
             $('#meeting-create').modal('hide');
         });
 
@@ -95,12 +91,34 @@
                         success: function (data, status) {
                             if (data['rooms']) {
                                 var meeting_room_select = $('#meeting-create').find('select[name=meeting-room]');
+                                meeting_room_select.prop('disabled', false);
                                 meeting_room_select.empty();
-                                for (var i = 0; i < data['rooms'].length; i++) {
-                                    meeting_room_select.append('<option value="' + data['rooms'][i]['id'] + '">' + data['rooms'][i]['roomno'] + '</option>');
+
+                                for (var i = 0; i < data['rooms'].Data.length; i++) {
+                                    meeting_room_select.append('<option value=' + data.rooms.Data[i].ID + '>' + data.rooms.Data[i].RoomNo + '</option>');
                                 }
-                                meeting_room_select.enable();
                             }
+                        }
+                    })
+                }
+            }
+        })
+
+        $('#meeting-room-select').on({
+            change: function (event) {
+                var selected_room_id = $('#meeting-room-select').find(':selected').val();
+
+                if (selected_room_id !== "") {
+                    $.ajax({
+                        data: {
+                            selected_room_id: selected_room_id
+                        },
+                        url: "/Home/GetAvailableAttendees",
+                        type: "POST",
+                        async: true,
+                        dataType: "json",
+                        success: function (data, status) {
+                            console.log("success tho");
                         }
                     })
                 }
