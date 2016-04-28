@@ -78,36 +78,20 @@ namespace MeetingCoordinator.Controllers
             return Json(new {success = true});
         }
 
+        /*
+        I can't think of a good reason not to go ahead and also load the attendees here.
+        Otherwise we would go through all meetings to get available rooms,
+        Let the user choose the room (which has no affect on the attendees that can attend at that point)
+        then going through all the meetings again to get the attendees. So we get the attendees here
+        */
         [HttpPost]
-        public void Schedule()
-        {
-            String title;
-            String description;
-            String startTime;
-            String endTime;
-
-            try
-            {
-                title = Request.Form["title"];
-                description = Request.Form["description"];
-                startTime = Request.Form["start-time"];
-                endTime = Request.Form["end-time"];
-            }
-            catch (Exception e)
-            {
-                //exception encountered
-            }
-        }
-
-        [HttpPost]
-        public ActionResult CheckTimes()
+        public ActionResult CheckAvailability()
         {
             var startDateTimeString = Request.Form["start_time"];
             var endDateTimeString = Request.Form["end_time"];
 
             var startDateTime = DateTime.Parse(startDateTimeString);
             var endDateTime = DateTime.Parse(endDateTimeString);
-
             var availableRooms = new List<Room>();
             availableRooms.AddRange(_db.Rooms);
             foreach (var m in _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).Where(m => availableRooms.Contains(m.HostingRoom)))
@@ -119,6 +103,5 @@ namespace MeetingCoordinator.Controllers
             var list = serializer.Serialize(availableRooms);
             return Json(new {status = true, data = new { rooms = list } });
         }
-
     }
 }
