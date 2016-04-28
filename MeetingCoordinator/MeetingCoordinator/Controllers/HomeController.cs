@@ -78,6 +78,37 @@ namespace MeetingCoordinator.Controllers
             return Json(new {success = true});
         }
 
+        [HttpGet]
+        public ActionResult GetSchedulingData()
+        {
+            var attendeesList = new List<Attendee>();
+            var roomsList = new List<Room>();
+
+            attendeesList.AddRange(_db.Attendees);
+            roomsList.AddRange(_db.Rooms);
+
+            JsonResult result = Json(new
+            {
+                status = true,
+                attendees = attendeesList.Select(a => new
+                {
+                    ID = a.ID,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName
+                }),
+
+                rooms = roomsList.Select(r => new
+                {
+                    ID = r.ID,
+                    RoomNo = r.RoomNo
+                })
+
+            }, JsonRequestBehavior.AllowGet);
+
+
+            return result;
+        }
+
         /*
         I can't think of a good reason not to go ahead and also load the attendees here.
         Otherwise we would go through all meetings to get available rooms,

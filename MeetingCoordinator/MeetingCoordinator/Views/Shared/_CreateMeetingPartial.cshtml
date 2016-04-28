@@ -23,6 +23,22 @@
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label">Meeting Room</label>
+                        <div class="controls">
+                            <select name="meeting-room" class="form-control" id="meeting-room-select">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Attendees</label>
+                        <div class="controls">
+                            <select multiple name="attendees" class="form-control">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label">Start Time</label>
                         <div class="controls">
                             <input type="datetime-local" value="" name="start-time" id="start-time-input" class="form-control" />
@@ -35,21 +51,7 @@
                             <input type="datetime-local" value="" name="end-time" id="end-time-input" class="form-control" />
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Meeting Room</label>
-                        <div class="controls">
-                            <select name="meeting-room" class="form-control" id="meeting-room-select" disabled>
-                            </select>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Attendees</label>
-                        <div class="controls">
-                            <select multiple name="attendees" class="form-control" disabled>
-                            </select>
-                        </div>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
