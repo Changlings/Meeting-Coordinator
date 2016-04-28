@@ -20,6 +20,7 @@ namespace MeetingCoordinator.Controllers
         {    
 //            System.Diagnostics.Debugger.Launch();
 //            int attendeeId = int.Parse(User.Identity.GetUserId());
+            // TODO: FIX THE DAMNED OWIN STUFF
             var currentAttendee = _db.Attendees.First(a => a.FirstName == "Wes");
             year = year == -1 ? DateTime.Now.Year : year;
             month = month == -1 ? DateTime.Now.Month : month;
@@ -34,18 +35,25 @@ namespace MeetingCoordinator.Controllers
         }
 
         [HttpGet]
-        public ActionResult EditMeeting(int id)
+        public ActionResult Meeting(int id)
         {
-            var meetingResult = _db.Meetings.First(meeting => meeting.ID == id);
+            var meetingResult = _db.Meetings.Find(id);
             if (meetingResult == null)
             {
-                return Json(new {success = false, error = "No meeting with that ID found"});
+                return Json(new {success = false, error = "No meeting with that ID found"}, JsonRequestBehavior.AllowGet);
             }
-            return Json(meetingResult);
+            return Json(new
+            {
+                title = meetingResult.Title,
+                description = meetingResult.Description,
+                startTime = meetingResult.StartTime,
+                endTime = meetingResult.EndTime,
+                attendees = meetingResult.Attendees.Select(a => new {id = a.ID, firstName = a.FirstName, lastName = a.LastName}).ToList()
+            }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult EditMeetingSubmit()
+        public ActionResult EditMeeting()
         {
             var meetingId = int.Parse(Request.Form.Get("meeting-id"));
             var meeting = _db.Meetings.Find(meetingId);

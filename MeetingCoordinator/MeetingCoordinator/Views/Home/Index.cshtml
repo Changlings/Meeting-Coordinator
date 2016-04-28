@@ -88,10 +88,10 @@
                 <h4 class="modal-title">Meeting Details</h4>
             </div>
             <div class="modal-body">
-                <h2 class="text-purple semi-bold">Joe's Birthday</h2>
-                <h4 class="text-grey">Monday 8:30 AM - 9:30 AM, Conference Room 2</h4>
-                <p class="text-grey">Debbie, Bob, Joe, Melinda, William, Me, Jeremy</p>
-                <p>There's gonna be cake!</p>
+                <h2 class="text-purple semi-bold meeting-detail" id="detail-title">Joe's Birthday</h2>
+                <h4 class="text-grey meeting-detail" id="detail-time">Monday 8:30 AM - 9:30 AM, Conference Room 2</h4>
+                <p class="text-grey meeting-detail" id="detail-attendees">Debbie, Bob, Joe, Melinda, William, Me, Jeremy</p>
+                <p class="meeting-detail" id="detail-description">There's gonna be cake!</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -152,38 +152,79 @@
 <!--formatter:off-->
 @section Scripts {
     @Scripts.Render("~/Scripts/js/calender.js",
-    "~/Scripts/plugins/fullcalendar/fullcalendar.min.js")
-<!--formatter:on-->
-<!-- TODO Move this to a separate JS file-->
-<script>
-    $(document).ready(function () {
-        $('.edit-meeting').click(function (e) {
-            $('.modal-body').find('input[name=title]').val(this.dataset.title);
-            $(this).closest('.external-event').find('.meeting')[0].dataset.attendees.split(',').forEach(function (val, index) {
-                $('select[name=attendees]').find('option[value=' + val + ']').attr('selected', true);
+        "~/Scripts/plugins/fullcalendar/fullcalendar.min.js",
+        "~/Scripts/plugins/moment.js")
+    <!--formatter:on-->
+    <!-- TODO Move this to a separate JS file-->
+    <script>
+        $(document).ready(function () {
+            /**
+             * Event listener for handling getting data about a meeting from the server and
+             * displaying the Edit Meeting modal
+             */
+            $('.edit-meeting').click(function (e) {
+                // TODO: SERVER LOGIC (EDIT MEETING USE CASE)
+                $('.modal-body').find('input[name=title]').val(this.dataset.title);
+                $(this).closest('.external-event').find('.meeting')[0].dataset.attendees.split(',').forEach(function(val, index) {
+                    $('select[name=attendees]').find('option[value=' + val + ']').attr('selected', true);
+                });
+                $('#delete-meeting')[0].dataset.meetingId = this.dataset.id;
+                $('#meeting-edit').modal("show");
             });
-            $('#delete-meeting')[0].dataset.meetingId = this.dataset.id;
-            $('#meeting-edit').modal("show");
-        });
 
-        $('#delete-meeting').click(function (e) {
-            if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
-                $('.meeting[data-id=' + this.dataset.meetingId + ']').closest('.external-event').remove();
-                $('#meeting-edit').modal("hide");
-            }
-        });
+            /**
+             * Event listener for deleting a meeting from an Edit Meeting modal
+             */
+            $('#delete-meeting').click(function(e) {
+                if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
+                    // TODO: SERVER LOGIC (EDIT-MEETING USE CASE)
+                    // Remove the list item on the main page
+                    $('.meeting[data-id=' + this.dataset.meetingId + ']').closest('.external-event').remove();
+                    // Hide the modal
+                    $('#meeting-edit').modal("hide");
+                }
+            });
 
-        $('.delete-meeting').click(function (e) {
-            if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
-                $(this).closest('.external-event').remove();
-            }
-        });
+            /**
+             * Event listener for deleting a meeting from the list view
+             */
+            $('.delete-meeting').click(function(e) {
+                if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
+                    // TODO: SERVER LOGIC (REMOVE MEETING USE CASE)
+                    $(this).closest('.external-event').remove();
+                }
+            });
 
-        $('#external-events div.external-event span.meeting').click(function () {
-            $('#meeting-details').modal('show');
-        })
-    });
-</script>
+            /**
+             * Event listener for clicking on a meeting link in the list view
+             */
+            $('#external-events').find('div.external-event span.meeting').click(function() {
+                // Get the ID of this meeting from the data-id attribute
+                var id = this.dataset['id'];
+                // Fire off a JSON request to get the meeting according to the id
+                $.getJSON("@Url.Action("Meeting", "Home")", { id: id }, function (response) {
+                    // empty the modal of previous results
+                    $.each($('.meeting-detail'), function(index, element){
+                        $(element).empty();
+                    });
+                    // We need to filter out the attributes we need for Attendees
+                    var attendees = [];
+                    response.attendees.forEach(function(attendee){
+                        attendees.push(attendee.firstName + " " + attendee.lastName);
+                    });
+                    // Update the details for the modal
+                    $('#detail-attendees').text(attendees.join(", "));
+                    $('#detail-title').text(response.title);
+                    $('#detail-description').text(response.description);
+                    // Use moment.js to parse the times given back by the server into a nice message
+                    $('#detail-time').text(moment(parseInt(/-?\d+/.exec(response.startTime))).format("MMMM Do YYYY, h:mm:ss a") +
+                        " to " + moment(parseInt(/-?\d+/.exec(respons.endTime))).format("MMMM Do YYYY, h:mm:ss a"));
+                    // Show the modal
+                    $('#meeting-details').modal('show');
+                });
+            });
+        });
+    </script>
 }
 
 <!--formatter:off-->
