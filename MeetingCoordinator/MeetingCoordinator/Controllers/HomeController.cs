@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using System.Web.Script.Serialization;
 using Microsoft.Ajax.Utilities;
+using Newtonsoft.Json;
 
 namespace MeetingCoordinator.Controllers
 {
@@ -17,9 +18,9 @@ namespace MeetingCoordinator.Controllers
 
         //        [Authorize]
         public ActionResult Index(int year = -1, int month = -1)
-        {    
-//            System.Diagnostics.Debugger.Launch();
-//            int attendeeId = int.Parse(User.Identity.GetUserId());
+        {
+            //System.Diagnostics.Debugger.Launch();
+            //            int attendeeId = int.Parse(User.Identity.GetUserId());
             // TODO: FIX THE DAMNED OWIN STUFF
             var currentAttendee = _db.Attendees.First(a => a.FirstName == "Wes");
             year = year == -1 ? DateTime.Now.Year : year;
@@ -87,6 +88,7 @@ namespace MeetingCoordinator.Controllers
             var attendeesList = new List<Attendee>();
             var roomsList = new List<Room>();
 
+            //TODO: remove the user actually creating the meeting from the list of attendees
             attendeesList.AddRange(_db.Attendees);
             roomsList.AddRange(_db.Rooms);
 
@@ -118,27 +120,110 @@ namespace MeetingCoordinator.Controllers
         [HttpPost]
         public ActionResult CheckAvailability()
         {
+            var errors = new List<String>();
+            bool meetingAvailable = true;
+
             var startDateTimeString = Request.Form["start_time"];
             var endDateTimeString = Request.Form["end_time"];
+            var selectedRoomID = Int32.Parse(Request.Form["room_id"]);
+
+            var attendeeString = Request.Form["attendees[]"];
+            var attendeeIDList = (
+                from string s in attendeeString.Split(',')
+                select Convert.ToInt32(s)
+            ).ToList<int>();
+            var attendeeList = new List<Attendee>();
+
+            foreach (int i in attendeeIDList)
+            {
+                Attendee a = _db.Attendees.Find(i);
+                attendeeList.Add(a);
+            }
 
             var startDateTime = DateTime.Parse(startDateTimeString);
             var endDateTime = DateTime.Parse(endDateTimeString);
 
-            var availableRooms = new List<Room>();
-            availableRooms.AddRange(_db.Rooms);
+            //if an existing meeting is already using the selected room at the selected time
+            Room room = _db.Rooms.First(r => r.ID == selectedRoomID);
+            foreach (var m in _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).Where(m => selectedRoomID == m.HostingRoom.ID))
+            {
+                errors.Add("Room " + room.RoomNo + " is already in use during this time.");
+                meetingAvailable = false;
+            }
 
-            ////if an existing meeting is using the current room 
-            //foreach (var m in _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).Where(m => availableRooms.Contains(m.HostingRoom)))
-            //{
-            //    availableRooms.Remove(m.HostingRoom);
-            //}
+            //TODO: check if owner of this meeting is already owner of another meeting or attending another meeting during this time
+            //if an attendee is already attending a meeting during the selected time
+            var overlappingMeetings = _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).ToList();
+            foreach (Meeting m in overlappingMeetings)
+            {
+                if(attendeeList.Count() > 0)
+                {
+                    //get the attendees that exist both in the selected attendees list and the attendees that are attending a meeting happening during the selected times
+                    var overlappingAttendees = m.Attendees.Intersect(attendeeList).ToList();
+                    foreach (var a in overlappingAttendees)
+                    {
+                        errors.Add(a.FirstName + " " + a.LastName + " is already attending a meeting during this time.");
+                        attendeeList.Remove(a); //so this error won't be encountered again
+                        meetingAvailable = false;
+                    }
+
+                }
+            }
+
+            if(endDateTime <= startDateTime)
+            {
+                errors.Add("End date and time must be after start date and time.");
+                meetingAvailable = false;
+            }
 
             return Json(new
             {
                 status = true,
-                meetingAvailable = false,
-                error = "This person is not available for this meeting"
+                meetingAvailable = meetingAvailable,
+                errors = Json(errors)
             });
+        }
+
+        [HttpPost]
+        public ActionResult SaveMeeting()
+        {
+            Boolean saveSuccessful = false;
+
+            var title = Request.Form.Get("title");
+            var description = Request.Form.Get("description");
+            var roomId = Int32.Parse(Request.Form.Get("room_id"));
+
+            var attendeeIds = Request.Form.Get("attendee_ids[]");
+            var attendeeIdList = (
+                from string s in attendeeIds.Split(',')
+                select Convert.ToInt32(s)
+            ).ToList<int>();
+
+            var startTime = Request.Form.Get("start_time");
+            var endTime = Request.Form.Get("end_time");
+
+            var meeting = new Meeting();
+            meeting.Title = title;
+            meeting.Description = description;
+            meeting.EndTime = DateTime.Parse(endTime);
+            meeting.StartTime = DateTime.Parse(startTime);
+            meeting.Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList();
+            meeting.HostingRoom = _db.Rooms.First(r => r.ID == roomId);
+
+            //TODO: GET RID OF HARDCODED OWNER ONCE OWIN STUFF IS FIXED
+            meeting.Owner = _db.Attendees.First(a => a.FirstName == "William");
+
+            try
+            {
+                _db.Meetings.Add(meeting);
+                _db.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                saveSuccessful = false;
+            }
+
+            return Json(new { success = saveSuccessful });
         }
     }
 }

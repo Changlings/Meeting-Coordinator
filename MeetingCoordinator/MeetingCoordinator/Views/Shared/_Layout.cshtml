@@ -87,6 +87,7 @@
                 if (start_time !== "" && end_time !== "") {
 
                     var roomID = $('#meeting-create').find('select[name=meeting-room]').val();
+                    //TODO: change this to attendee_ids
                     var attendees = [];
 
                     //get all selected attendees
@@ -115,7 +116,10 @@
                             success: function (data, status) {
                                 if (status) {
                                     if (!data.meetingAvailable) {
-                                        alert(data.error)
+                                        for (var i = 0; i < data.errors.Data.length; i++) {
+                                            //TODO: show actual error messages to the user
+                                            console.log(data.errors.Data[i]);
+                                        }
                                     }
                                 }
                             }
@@ -126,14 +130,48 @@
         })
 
         $('#save-new-meeting').click(function (e) {
-            alert("Meeting created!");
-            var meeting_id = $('.external-event').length + 1;
-            $('#external-events').append('<div class="external-event">' +
-                    '<span class="meeting" data-title="Meeting ' + meeting_id + '" data-attendees="" data-id="' + meeting_id + '">Meeting ' + meeting_id + '</span>' +
-                    '<span class="delete-meeting pull-right"><i class="fa fa-times"></i></span>' +
-                    '</div>');
+            var title = $('#meeting-create').find('input[name=title]').val();
+            var description = $('#meeting-create').find('textarea[name=description]').val();
+            var room_id = $('#meeting-create').find('select[name=meeting-room]').val();
+            var attendee_ids = [];
 
-            $('#meeting-create').modal('hide');
+            //get all selected attendee ids
+            $('#attendees-multiple-select :selected').each(function (i, selected) {
+                attendee_ids[i] = $(selected).val();
+            });
+
+            var start_time = $('#start-time-input').val();
+            var end_time = $('#end-time-input').val();
+
+            $.ajax({
+                data: {
+                    title: title,
+                    description: description,
+                    room_id: room_id,
+                    attendee_ids: attendee_ids,
+                    start_time: start_time,
+                    end_time: end_time
+                },
+                type: "POST",
+                dataType: "json",
+                url: "/Home/SaveMeeting",
+                async: true,
+                success: function (success) {
+                    if (success) {
+                        alert("Meeting created!");
+                        var meeting_id = $('.external-event').length + 1;
+                        $('#external-events').append('<div class="external-event">' +
+                                '<span class="meeting" data-title="Meeting ' + meeting_id + '" data-attendees="" data-id="' + meeting_id + '">Meeting ' + meeting_id + '</span>' +
+                                '<span class="delete-meeting pull-right"><i class="fa fa-times"></i></span>' +
+                                '</div>');
+
+                        $('#meeting-create').modal('hide');
+                    } else {
+                        //TODO: show an actual error message and handle it
+                        console.log("Error! fix this");
+                    }
+                }
+            })
         });
 
         $('#save-meeting-edit').click(function(e){
