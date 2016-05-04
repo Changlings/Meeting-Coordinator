@@ -178,7 +178,7 @@ namespace MeetingCoordinator.Controllers
 
             return Json(new
             {
-                status = true,
+                status = errors.Count == 0,
                 meetingAvailable = meetingAvailable,
                 errors = Json(errors)
             });
