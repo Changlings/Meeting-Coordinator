@@ -32,6 +32,7 @@
   $('#calender-prev').click(function() {
     $('#calendar').fullCalendar('prev');
     currentDate = $('#calendar').fullCalendar('getDate');
+    debugger;
     $('#calender-current-day').html($.fullCalendar.formatDate(currentDate, "dddd"));
     $('#calender-current-date').html($.fullCalendar.formatDate(currentDate, "MMM yyyy"));
   });

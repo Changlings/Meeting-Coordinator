@@ -6,12 +6,12 @@ using System.Web;
 
 namespace MeetingCoordinator.Models
 {
-    public class MySqlConfiguration : DbConfiguration
+  public class MySqlConfiguration : DbConfiguration
+  {
+    public MySqlConfiguration()
     {
-        public MySqlConfiguration()
-        {
-            SetHistoryContext(
-            "MySql.Data.MySqlClient", (conn, schema) => new MySqlHistoryContext(conn, schema));
-        }
+      SetHistoryContext(
+      "MySql.Data.MySqlClient", (conn, schema) => new MySqlHistoryContext(conn, schema));
     }
+  }
 }

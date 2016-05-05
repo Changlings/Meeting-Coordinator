@@ -53,6 +53,13 @@ namespace MeetingCoordinator.Controllers
       }, JsonRequestBehavior.AllowGet);
     }
 
+    [HttpGet]
+    public ActionResult GetMeetingsForMonth(DateTime month)
+    {
+      // TODO: NEED A METHOD TO MEETINGS FOR A MONTH FOR USE IN THE CALENDAR SWITCHING ACTIONS
+      return Json(new {}, JsonRequestBehavior.AllowGet);
+    }
+
     [HttpPost]
     public ActionResult EditMeeting()
     {
@@ -120,32 +127,26 @@ namespace MeetingCoordinator.Controllers
     [HttpPost]
     public ActionResult CheckAvailability()
     {
-      var errors = new List<String>();
+      var errors = new List<string>();
       bool meetingAvailable = true;
 
       var startDateTimeString = Request.Form["start_time"];
       var endDateTimeString = Request.Form["end_time"];
-      var selectedRoomID = Int32.Parse(Request.Form["room_id"]);
+      var selectedRoomId = int.Parse(Request.Form["room_id"]);
 
       var attendeeString = Request.Form["attendees[]"];
-      var attendeeIDList = (
+      var attendeeIdList = (
           from string s in attendeeString.Split(',')
           select Convert.ToInt32(s)
       ).ToList<int>();
-      var attendeeList = new List<Attendee>();
-
-      foreach (int i in attendeeIDList)
-      {
-        Attendee a = _db.Attendees.Find(i);
-        attendeeList.Add(a);
-      }
+      var attendeeList = attendeeIdList.Select(i => _db.Attendees.Find(i)).ToList();
 
       var startDateTime = DateTime.Parse(startDateTimeString);
       var endDateTime = DateTime.Parse(endDateTimeString);
 
       //if an existing meeting is already using the selected room at the selected time
-      Room room = _db.Rooms.First(r => r.ID == selectedRoomID);
-      foreach (var m in _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).Where(m => selectedRoomID == m.HostingRoom.ID))
+      Room room = _db.Rooms.First(r => r.ID == selectedRoomId);
+      foreach (var m in _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).Where(m => selectedRoomId == m.HostingRoom.ID))
       {
         errors.Add("Room " + room.RoomNo + " is already in use during this time.");
         meetingAvailable = false;
@@ -156,7 +157,7 @@ namespace MeetingCoordinator.Controllers
       var overlappingMeetings = _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).ToList();
       foreach (Meeting m in overlappingMeetings)
       {
-        if (attendeeList.Count() > 0)
+        if (attendeeList.Any())
         {
           //get the attendees that exist both in the selected attendees list and the attendees that are attending a meeting happening during the selected times
           var overlappingAttendees = m.Attendees.Intersect(attendeeList).ToList();

@@ -8,19 +8,19 @@ using System.Web;
 
 namespace MeetingCoordinator.Models
 {
-    public class MySqlHistoryContext : HistoryContext
+  public class MySqlHistoryContext : HistoryContext
+  {
+    public MySqlHistoryContext(
+      DbConnection existingConnection,
+      string defaultSchema)
+    : base(existingConnection, defaultSchema)
     {
-        public MySqlHistoryContext(
-          DbConnection existingConnection,
-          string defaultSchema)
-        : base(existingConnection, defaultSchema)
-        {
-        }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Properties<String>().Configure(c => c.HasColumnType("longtext"));
-            base.OnModelCreating(modelBuilder);
-        }
     }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      modelBuilder.Properties<String>().Configure(c => c.HasColumnType("longtext"));
+      base.OnModelCreating(modelBuilder);
+    }
+  }
 }

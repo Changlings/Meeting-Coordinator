@@ -184,11 +184,10 @@
       <DependentUpon>201604270211579_initial_migration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\Attendee.cs" />
     <Compile Include="Models\DbContext.cs" />
     <Compile Include="Models\Meeting.cs" />
-    <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MySqlConfiguration.cs" />
     <Compile Include="Models\MySqlHistoryContext.cs" />
     <Compile Include="Models\MySqlInitializer.cs" />
