@@ -1,9 +1,7 @@
 ﻿@using MeetingCoordinator.Models
-<!--formatter:off-->
 @{
   ViewBag.Title = "Home Page";
 }
-<!--formatter:on-->
 @Html.Partial("_MeetingEditPartial")
 
 @Html.Partial("_MeetingDetailPartial")
@@ -19,11 +17,18 @@
             @foreach (Meeting meeting in ViewBag.meetings)
             {
               <div class="external-event">
-                <span class="meeting" data-title="@meeting.Title" data-attendees="@string.Join(",", meeting.Attendees.AsEnumerable().Select(m => m.ID).ToArray())" data-id="@meeting.ID">
+                <span class="meeting" 
+                      data-title="@meeting.Title" 
+                      data-attendees="@string.Join(",", meeting.Attendees.AsEnumerable().Select(m => m.ID).ToArray())" 
+                      data-id="@meeting.ID"
+                      data-start="@meeting.StartTime.ToString("O")"
+                      data-end="@meeting.StartTime.ToString("O")">
                   @meeting.Title
                 </span>
                 <span class="pull-right">
-                  <i class="edit-meeting fa fa-pencil"></i><i style="padding-left: 5px; padding-right: 5px;"></i><i class="delete-meeting fa fa-times"></i>
+                  <i class="edit-meeting fa fa-pencil"></i>
+                  <i style="padding-left: 5px; padding-right: 5px;"></i>
+                  <i class="delete-meeting fa fa-times"></i>
                 </span>
               </div>
             }
@@ -36,7 +41,9 @@
         <div class="full-calender-header">
           <div class="pull-left">
             <div class="btn-group ">
-              <button class="btn btn-success" id="calender-prev"><i class="fa fa-angle-left"></i></button>
+              <button class="btn btn-success" id="calender-prev">
+                <i class="fa fa-angle-left"></i>
+              </button>
               <button class="btn btn-success" id="calender-next">
                 <i class="fa fa-angle-right"></i>
               </button>
@@ -45,7 +52,7 @@
           <div class="pull-right">
             <div data-toggle="buttons-radio" class="btn-group">
               <button class="btn btn-primary active" type="button" id="change-view-month">month</button>
-              <button class="btn btn-primary " type="button" id="change-view-week">week</button>
+              <button class="btn btn-primary" type="button" id="change-view-week">week</button>
               <button class="btn btn-primary" type="button" id="change-view-day">day</button>
             </div>
           </div>
@@ -56,27 +63,21 @@
     </div>
   </div>
 </div>
-<!--formatter:off-->
 @section Scripts {
   @Scripts.Render("~/Scripts/js/calender.js",
         "~/Scripts/plugins/fullcalendar/fullcalendar.min.js",
         "~/Scripts/plugins/moment.js",
         "~/Scripts/js/main.js")
-  <!--formatter:on-->
-  <!-- TODO Move this to a separate JS file-->
 }
-
-<!--formatter:off-->
 @section Styles {
   @Styles.Render("~/Scripts/plugins/fullcalendar/fullcalendar.css")
-  <!--formatter:on-->
   <style>
     .calender-options-wrapper .external-event {
       cursor: initial;
     }
 
-      .calender-options-wrapper .external-event span {
-        cursor: pointer;
-      }
+    .calender-options-wrapper .external-event span {
+      cursor: pointer;
+    }
   </style>
 }

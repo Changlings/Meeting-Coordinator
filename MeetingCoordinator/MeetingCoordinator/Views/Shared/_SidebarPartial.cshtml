@@ -8,12 +8,11 @@
     <div class="user-info-wrapper">
       <div class="user-info">
         <div class="greeting">Welcome</div>
-        <div class="username">@User.Identity.Name ?? "Attendee"</div>
+        <div class="username">@(User.Identity.Name.Length > 0 ? User.Identity.Name : "Attendee")</div>
       </div>
     </div>
     <!-- END MINI-PROFILE -->
     <!-- BEGIN SIDEBAR MENU -->
-    <p class="menu-title">BROWSE<span class="pull-right"><a href="javascript:;"><i class="fa fa-refresh"></i></a></span></p>
     <ul>
       <li class="@(Request.Url.PathAndQuery == "/" || Request.Url.PathAndQuery == "/Home/Index" ? "start selected" : "")">
         <a href="/">
@@ -35,15 +34,6 @@
           }
         </a>
       </li>
-      <!-- BEGIN BADGE LINK -->
-      <!--<li class="">
-          <a href="#">
-              <i class="fa fa-comments"></i>
-              <span class="title">My Meetings</span>
-              <span class="badge badge-disable pull-right">3</span>
-          </a>
-      </li>-->
-      <!-- END BADGE LINK -->
     </ul>
     <!-- END SIDEBAR MENU -->
     <div class="clearfix"></div>

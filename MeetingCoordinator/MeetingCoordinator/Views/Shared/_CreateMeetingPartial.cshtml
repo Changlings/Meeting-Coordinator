@@ -5,55 +5,57 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">Schedule Meeting</h4>
             </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label class="form-label">Title</label>
-                        <span class="help">e.g: Jim's Surprise Birthday Party</span>
-                        <div class="controls">
-                            <input type="text" value="" name="title" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <span class="help">What's this meeting for?</span>
-                        <div class="controls">
-                            <textarea name="description" class="form-control">L</textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Meeting Room</label>
-                        <div class="controls">
-                            <select name="meeting-room" class="form-control" id="meeting-room-select">
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Attendees</label>
-                        <div class="controls">
-                            <select multiple name="attendees" id="attendees-multiple-select" class="form-control">
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Start Time</label>
-                        <div class="controls">
-                            <input type="datetime-local" value="" name="start-time" id="start-time-input" class="form-control" />
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">End Time</label>
-                        <div class="controls">
-                            <input type="datetime-local" value="" name="end-time" id="end-time-input" class="form-control" />
-                        </div>
-                    </div>
-
-                </form>
+          <div class="modal-body">
+            <div class="alert alert-danger">
             </div>
+            <form>
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <span class="help">e.g: Jim's Surprise Birthday Party</span>
+                <div class="controls">
+                  <input type="text" value="" name="title"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <span class="help">What's this meeting for?</span>
+                <div class="controls">
+                  <textarea name="description" class="form-control">L</textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Meeting Room</label>
+                <div class="controls">
+                  <select name="meeting-room" class="form-control" id="meeting-room-select">
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Attendees</label>
+                <div class="controls">
+                  <select multiple name="attendees" id="attendees-multiple-select" class="form-control">
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Start Time</label>
+                <div class="controls">
+                  <input type="datetime-local" value="" name="start-time" id="start-time-input" class="form-control"/>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">End Time</label>
+                <div class="controls">
+                  <input type="datetime-local" value="" name="end-time" id="end-time-input" class="form-control"/>
+                </div>
+              </div>
+
+            </form>
+          </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="save-new-meeting">Schedule Meeting</button>
