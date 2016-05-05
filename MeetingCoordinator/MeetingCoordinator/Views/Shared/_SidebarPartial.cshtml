@@ -3,55 +3,52 @@
 <!-- BEGIN SIDEBAR -->
 <!-- BEGIN MENU -->
 <div class="page-sidebar" id="main-menu">
-    <div class="page-sidebar-wrapper scrollbar-dynamic" id="main-menu-wrapper">
-        <!-- BEGIN MINI-PROFILE -->
-        <div class="user-info-wrapper">
-            <div class="profile-wrapper">
-                <!-- <img src="~/Scripts/img/profiles/avatar.jpg" alt="" data-src="~/Scripts/img/profiles/avatar.jpg" data-src-retina="~/Scripts/img/profiles/avatar2x.jpg" width="69" height="69" />-->
-            </div>
-            <div class="user-info">
-                <div class="greeting">Welcome</div>
-                <div class="username">Attendee</div>
-            </div>
-        </div>
-        <!-- END MINI-PROFILE -->
-        <!-- BEGIN SIDEBAR MENU -->
-        <p class="menu-title">BROWSE<span class="pull-right"><a href="javascript:;"><i class="fa fa-refresh"></i></a></span></p>
-        <ul>
-            <li class="@(Request.Url.PathAndQuery == "/" || Request.Url.PathAndQuery == "/Home/Index" ? "start selected" : "")">
-                <a href="/">
-                    <i class="icon-custom-home"></i>
-                    <span class="title">View Planner</span>
-                    @if (Request.Url.PathAndQuery == "/" || Request.Url.PathAndQuery == "/Home/Index")
-                    {
-                        <span class="selected"></span>
-                    }
-                </a>
-            </li>
-            <li class="@(Request.Url.PathAndQuery == "/Meeting/Schedule" ? "start selected" : "")" id="schedule-meeting-sidebar">
-                <a href="#">
-                    <i class="fa fa-plus"></i>
-                    <span class="title">Schedule Meeting</span>
-                    @if (Request.Url.PathAndQuery == "/Meeting/Schedule")
-                    {
-                        <span class="selected"></span>
-                    }
-                </a>
-            </li>
-            <!-- BEGIN BADGE LINK -->
-            <!--<li class="">
-                <a href="#">
-                    <i class="fa fa-comments"></i>
-                    <span class="title">My Meetings</span>
-                    <span class="badge badge-disable pull-right">3</span>
-                </a>
-            </li>-->
-            <!-- END BADGE LINK -->
-        </ul>
-        <!-- END SIDEBAR MENU -->
-        <div class="clearfix"></div>
-        <!-- END SIDEBAR WIDGETS -->
+  <div class="page-sidebar-wrapper scrollbar-dynamic" id="main-menu-wrapper">
+    <!-- BEGIN MINI-PROFILE -->
+    <div class="user-info-wrapper">
+      <div class="user-info">
+        <div class="greeting">Welcome</div>
+        <div class="username">@User.Identity.Name ?? "Attendee"</div>
+      </div>
     </div>
+    <!-- END MINI-PROFILE -->
+    <!-- BEGIN SIDEBAR MENU -->
+    <p class="menu-title">BROWSE<span class="pull-right"><a href="javascript:;"><i class="fa fa-refresh"></i></a></span></p>
+    <ul>
+      <li class="@(Request.Url.PathAndQuery == "/" || Request.Url.PathAndQuery == "/Home/Index" ? "start selected" : "")">
+        <a href="/">
+          <i class="icon-custom-home"></i>
+          <span class="title">View Planner</span>
+          @if (Request.Url.PathAndQuery == "/" || Request.Url.PathAndQuery == "/Home/Index")
+          {
+            <span class="selected"></span>
+          }
+        </a>
+      </li>
+      <li class="@(Request.Url.PathAndQuery == "/Meeting/Schedule" ? "start selected" : "")" id="schedule-meeting-sidebar">
+        <a href="#">
+          <i class="fa fa-plus"></i>
+          <span class="title">Schedule Meeting</span>
+          @if (Request.Url.PathAndQuery == "/Meeting/Schedule")
+          {
+            <span class="selected"></span>
+          }
+        </a>
+      </li>
+      <!-- BEGIN BADGE LINK -->
+      <!--<li class="">
+          <a href="#">
+              <i class="fa fa-comments"></i>
+              <span class="title">My Meetings</span>
+              <span class="badge badge-disable pull-right">3</span>
+          </a>
+      </li>-->
+      <!-- END BADGE LINK -->
+    </ul>
+    <!-- END SIDEBAR MENU -->
+    <div class="clearfix"></div>
+    <!-- END SIDEBAR WIDGETS -->
+  </div>
 </div>
 <!-- END MENU -->
 <!-- END SIDEBAR -->
