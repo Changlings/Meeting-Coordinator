@@ -230,5 +230,21 @@ namespace MeetingCoordinator.Controllers
         return Json(new {success = false, error = e.Message});
       }
     }
+    // SUPER INSECURE BUT IIS IS REALY STUPID
+    // ABOUT DELETE VERBS
+    [HttpGet]
+    public ActionResult DeleteMeeting(int id)
+    {
+      try
+      {
+        this._db.Meetings.Remove(this._db.Meetings.First(m => m.ID == id));
+        this._db.SaveChanges();
+        return Json(new {success = true}, JsonRequestBehavior.AllowGet);
+      }
+      catch(Exception e)
+      {
+        return Json(new {success = false, error = e.Message}, JsonRequestBehavior.AllowGet);
+      }
+    }
   }
 }

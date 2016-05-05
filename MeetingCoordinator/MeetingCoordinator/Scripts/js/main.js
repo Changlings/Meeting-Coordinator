@@ -75,27 +75,47 @@
       $('#meeting-edit').modal("hide");
     }
   });
+
   /**
    * Event listener for deleting a meeting from the list view
    */
-  $('.delete-meeting').click(function(e) {
-    if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
-      $(this).closest(".external-event").remove();
+  $(document).on({
+    click: function(e) {
+      if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
+        var eventListItem = $(this).closest(".external-event");
+        var meetingDetails = $(eventListItem).find("span.meeting").get(0).dataset;
+        $.ajax({
+          url: "/Home/DeleteMeeting",
+          method: "GET",
+          data: {
+            id: meetingDetails["id"]
+          },
+          success: function(response) {
+            if (response.success) {
+              $("#calendar").fullCalendar("removeEvents", meetingDetails["id"]);
+              $(eventListItem).remove();
+            } else {
+              console.error("ERROR DELETING MEETING", meetingDetails["id"], response.error);
+              alert("There was an error deleting your meeting. Please try again later");
+            }
+          }
+        });
+      }
     }
-  });
+  }, '.delete-meeting');
   /**
    * Event listener for clicking on a meeting link in the list view
    */
   $(document).on({
     click: function() {
       // Get the ID of this meeting from the data-id attribute
-      var id = this.dataset['id'];
+      var id = this.dataset["id"];
       // Fire off a JSON request to get the meeting according to the id
       $.getJSON("/Home/Meeting", {
         id: id
       }, function(response) {
         // empty the modal of previous results
-        $.each($('.meeting-detail'), function(index, element) {
+        $.each($(".meeting-detail"), function(index, element) {
           $(element).empty();
         });
         // We need to filter out the attributes we need for Attendees
@@ -104,16 +124,20 @@
           attendees.push(attendee.firstName + " " + attendee.lastName);
         });
         // Update the details for the modal
-        $('#detail-attendees').text(attendees.join(", "));
-        $('#detail-title').text(response.title);
-        $('#detail-description').text(response.description);
+        $("#detail-attendees").text(attendees.join(", "));
+        $("#detail-title").text(response.title);
+        $("#detail-description").text(response.description);
         // Use moment.js to parse the times given back by the server into a nice message
-        $('#detail-time').text(moment(parseInt(/-?\d+/.exec(response.startTime))).format("MMMM Do YYYY, h:mm:ss a") + " to " + moment(parseInt(/-?\d+/.exec(response.endTime))).format("MMMM Do YYYY, h:mm:ss a"));
+        $("#detail-time").text(moment(parseInt(/-?\d+/.exec(response.startTime))).format("MMMM Do YYYY, h:mm:ss a") + " to " + moment(parseInt(/-?\d+/.exec(response.endTime))).format("MMMM Do YYYY, h:mm:ss a"));
         // Show the modal
-        $('#meeting-details').modal('show');
+        $('#meeting-details').modal("show");
       });
     }
   }, ".external-event > span.meeting, .external-event > span.edit-meeting");
+
+  /*
+   * Event handler for clicking the "Create Meeting" button
+   */
   $('#schedule-meeting-sidebar').click(function(e) {
     var $meeting = $('#meeting-create');
     $meeting.find('input, textarea').each(function(index, element) {
