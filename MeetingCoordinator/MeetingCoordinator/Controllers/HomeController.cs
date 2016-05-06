@@ -36,21 +36,36 @@ namespace MeetingCoordinator.Controllers
     }
 
     [HttpGet]
-    public ActionResult Meeting(int id)
+    public ActionResult RetrieveMeeting(int id)
     {
-      var meetingResult = _db.Meetings.Find(id);
-      if (meetingResult == null)
-      {
-        return Json(new { success = false, error = "No meeting with that ID found" }, JsonRequestBehavior.AllowGet);
-      }
-      return Json(new
-      {
-        title = meetingResult.Title,
-        description = meetingResult.Description,
-        startTime = meetingResult.StartTime,
-        endTime = meetingResult.EndTime,
-        attendees = meetingResult.Attendees.Select(a => new { id = a.ID, firstName = a.FirstName, lastName = a.LastName }).ToList()
-      }, JsonRequestBehavior.AllowGet);
+        var meetingResult = _db.Meetings.Find(id);
+
+        if (meetingResult == null)
+        {
+            return Json(new { success = false, error = "No meeting with that ID found" }, JsonRequestBehavior.AllowGet);
+        }
+
+        return Json(new
+        {
+            title = meetingResult.Title,
+            description = meetingResult.Description,
+            startTime = meetingResult.StartTime,
+            endTime = meetingResult.EndTime,
+            //this should only be the attendees attending the meeting so that the user can see this at first when editing
+            attendees = meetingResult.Attendees.Select(a => new { id = a.ID, firstName = a.FirstName, lastName = a.LastName }).ToList(),
+            room = meetingResult.HostingRoom,
+            allAttendees = _db.Attendees.Select(a => new
+            {
+                ID = a.ID,
+                FirstName = a.FirstName,
+                LastName = a.LastName
+            }),
+            allRooms = _db.Rooms.Select(r => new
+            {
+                ID = r.ID,
+                RoomNo = r.RoomNo
+            })
+        }, JsonRequestBehavior.AllowGet);
     }
 
     [HttpGet]

@@ -51,19 +51,56 @@
   $('#change-view-day').click(function() {
     $('#calendar').fullCalendar('changeView', 'agendaDay');
   });
-  /**
-   * Event listener for handling getting data about a meeting from the server and
-   * displaying the Edit Meeting modal
-   */
-  $('.edit-meeting').click(function(e) {
-    // TODO: SERVER LOGIC (EDIT MEETING USE CASE)
-    $('.modal-body').find('input[name=title]').val(this.dataset.title);
-    $(this).closest('.external-event').find('.meeting')[0].dataset.attendees.split(',').forEach(function(val, index) {
-      $('select[name=attendees]').find('option[value=' + val + ']').attr('selected', true);
-    });
-    $('#delete-meeting')[0].dataset.meetingId = this.dataset.id;
-    $('#meeting-edit').modal("show");
+    /**
+     * Event listener for handling getting data about a meeting from the server and
+     * displaying the Edit Meeting modal
+     */
+  $('.edit-meeting').click(function (e) {
+      var meetingId = $(this).closest(".external-event").find(".meeting")[0].dataset["id"];
+
+      $.ajax({
+          type: "GET",
+          dataType: "json",
+          data: {
+              id: meetingId
+          },
+          url: "/Home/RetrieveMeeting",
+          async: true,
+          success: function (data) {
+              var title = data['title'];
+              var description = data['description'];
+              var startTime = data['startTime'];
+              var endTime = data['endTime'];
+              var attendees = data['attendees'];
+              var room = data['room'];
+              var allRooms = data['allRooms'];
+              var allAttendees = data['allAttendees'];
+              //var rooms = data['rooms'];
+              //if (rooms) {
+              //    var meeting_room_select = $('#meeting-create').find('select[name=meeting-room]');
+              //    meeting_room_select.empty();
+              //    for (var i = 0; i < rooms.length; i++) {
+              //        meeting_room_select.append('<option value=' + rooms[i].ID + '>' + rooms[i].RoomNo + '</option>');
+              //    }
+              //}
+              //if (attendees) {
+              //    var attendee_select = $('#meeting-create').find('select[name=attendees]');
+              //    attendee_select.empty();
+              //    for (var i = 0; i < attendees.length; i++) {
+              //        attendee_select.append('<option value=' + attendees[i].ID + '>' + attendees[i].FirstName + ' ' + attendees[i].LastName + '</option>');
+              //    }
+              //}
+          }
+      })
+
+      //$('.modal-body').find('input[name=title]').val(this.dataset.title);
+      //$(this).closest('.external-event').find('.meeting')[0].dataset.attendees.split(',').forEach(function(val, index) {
+      //  $('select[name=attendees]').find('option[value=' + val + ']').attr('selected', true);
+      //});
+      //$('#delete-meeting')[0].dataset.meetingId = this.dataset.id;
+      $('#meeting-edit').modal("show");
   });
+
   /**
    * Event listener for deleting a meeting from an Edit Meeting modal
    */
