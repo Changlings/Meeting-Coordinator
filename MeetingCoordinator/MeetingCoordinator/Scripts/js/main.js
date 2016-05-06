@@ -75,21 +75,28 @@
               var room = data['room'];
               var allRooms = data['allRooms'];
               var allAttendees = data['allAttendees'];
-              //var rooms = data['rooms'];
-              //if (rooms) {
-              //    var meeting_room_select = $('#meeting-create').find('select[name=meeting-room]');
-              //    meeting_room_select.empty();
-              //    for (var i = 0; i < rooms.length; i++) {
-              //        meeting_room_select.append('<option value=' + rooms[i].ID + '>' + rooms[i].RoomNo + '</option>');
-              //    }
-              //}
-              //if (attendees) {
-              //    var attendee_select = $('#meeting-create').find('select[name=attendees]');
-              //    attendee_select.empty();
-              //    for (var i = 0; i < attendees.length; i++) {
-              //        attendee_select.append('<option value=' + attendees[i].ID + '>' + attendees[i].FirstName + ' ' + attendees[i].LastName + '</option>');
-              //    }
-              //}
+              if (allRooms) {
+                  var meeting_room_select = $('#meeting-edit').find('select[name=meeting-room]');
+                  meeting_room_select.empty();
+                  for (var i = 0; i < allRooms.length; i++) {
+                      if (allRooms[i].ID == room.ID) {
+                          meeting_room_select.append('<option value="' + allRooms[i].ID + '" selected>' + allRooms[i].RoomNo + '</option>');
+                      } else {
+                          meeting_room_select.append('<option value="' + allRooms[i].ID + '">' + allRooms[i].RoomNo + '</option>');
+                      }
+                  }
+              }
+              if (allAttendees) {
+                  var attendee_select = $('#meeting-edit').find('select[name=attendees]');
+                  attendee_select.empty();
+                  for (var i = 0; i < allAttendees.length; i++) {
+                      if($.inArray(allAttendees[i], attendees)) {
+                          attendee_select.append('<option value="' + allAttendees[i].ID + '" selected>' + allAttendees[i].FirstName + ' ' + allAttendees[i].LastName + '</option>');
+                      } else {
+                          attendee_select.append('<option value="' + allAttendees[i].ID + '">' + allAttendees[i].FirstName + ' ' + allAttendees[i].LastName + '</option>');
+                      }
+                  }
+              }
           }
       })
 
