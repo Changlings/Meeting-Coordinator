@@ -1,5 +1,6 @@
 ﻿using MeetingCoordinator.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -38,41 +39,61 @@ namespace MeetingCoordinator.Controllers
     [HttpGet]
     public ActionResult RetrieveMeeting(int id)
     {
-        var meetingResult = _db.Meetings.Find(id);
+      var meetingResult = _db.Meetings.Find(id);
 
-        if (meetingResult == null)
-        {
-            return Json(new { success = false, error = "No meeting with that ID found" }, JsonRequestBehavior.AllowGet);
-        }
+      if (meetingResult == null)
+      {
+        return Json(new { success = false, error = "No meeting with that ID found" }, JsonRequestBehavior.AllowGet);
+      }
 
-        return Json(new
+      return Json(new
+      {
+        title = meetingResult.Title,
+        description = meetingResult.Description,
+        startTime = meetingResult.StartTime,
+        endTime = meetingResult.EndTime,
+        //this should only be the attendees attending the meeting so that the user can see this at first when editing
+        attendees = meetingResult.Attendees.Select(a => new { id = a.ID, firstName = a.FirstName, lastName = a.LastName }).ToList(),
+        room = meetingResult.HostingRoom,
+        allAttendees = _db.Attendees.Select(a => new
         {
-            title = meetingResult.Title,
-            description = meetingResult.Description,
-            startTime = meetingResult.StartTime,
-            endTime = meetingResult.EndTime,
-            //this should only be the attendees attending the meeting so that the user can see this at first when editing
-            attendees = meetingResult.Attendees.Select(a => new { id = a.ID, firstName = a.FirstName, lastName = a.LastName }).ToList(),
-            room = meetingResult.HostingRoom,
-            allAttendees = _db.Attendees.Select(a => new
-            {
-                ID = a.ID,
-                FirstName = a.FirstName,
-                LastName = a.LastName
-            }),
-            allRooms = _db.Rooms.Select(r => new
-            {
-                ID = r.ID,
-                RoomNo = r.RoomNo
-            })
-        }, JsonRequestBehavior.AllowGet);
+          ID = a.ID,
+          FirstName = a.FirstName,
+          LastName = a.LastName
+        }),
+        allRooms = _db.Rooms.Select(r => new
+        {
+          ID = r.ID,
+          RoomNo = r.RoomNo
+        })
+      }, JsonRequestBehavior.AllowGet);
     }
 
     [HttpGet]
     public ActionResult GetMeetingsForMonth(DateTime month)
     {
-      // TODO: NEED A METHOD TO MEETINGS FOR A MONTH FOR USE IN THE CALENDAR SWITCHING ACTIONS
-      return Json(new {}, JsonRequestBehavior.AllowGet);
+      var endTime = month.AddMonths(1);
+      var currentAttendee = _db.Attendees.First(a => a.FirstName == "Wes");
+      var ownMeetings =
+        currentAttendee.OwnMeetings.Where(m => m.StartTime >= month && m.EndTime < endTime)
+          .OrderBy(m => m.StartTime)
+          .ToList();
+      var attendingMeetings = currentAttendee.AttendingMeetings.Where(m => m.StartTime >= month && m.EndTime < endTime)
+        .OrderBy(m => m.StartTime)
+        .ToList();
+      var meetings = ownMeetings.Union(attendingMeetings).ToList();
+
+      return Json(new
+      {
+        meetings = meetings.Select(m => new
+        {
+          id = m.ID,
+          title = m.Title,
+          start = m.StartTime,
+          end = m.EndTime,
+          attendees = m.Attendees.Select(a => a.ID)
+        })
+      }, JsonRequestBehavior.AllowGet);
     }
 
     [HttpPost]
@@ -203,11 +224,11 @@ namespace MeetingCoordinator.Controllers
     [HttpPost]
     public ActionResult SaveMeeting()
     {
-      Boolean saveSuccessful = false;
+      bool saveSuccessful = false;
 
       var title = Request.Form.Get("title");
       var description = Request.Form.Get("description");
-      var roomId = Int32.Parse(Request.Form.Get("room_id"));
+      var roomId = int.Parse(Request.Form.Get("room_id"));
 
       var attendeeIds = Request.Form.Get("attendee_ids[]");
       var attendeeIdList = (
@@ -218,32 +239,38 @@ namespace MeetingCoordinator.Controllers
       var startTime = Request.Form.Get("start_time");
       var endTime = Request.Form.Get("end_time");
 
-      var meeting = new Meeting();
-      meeting.Title = title;
-      meeting.Description = description;
-      meeting.EndTime = DateTime.Parse(endTime);
-      meeting.StartTime = DateTime.Parse(startTime);
-      meeting.Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList();
-      meeting.HostingRoom = _db.Rooms.First(r => r.ID == roomId);
+      var meeting = new Meeting
+      {
+        Title = title,
+        Description = description,
+        EndTime = DateTime.Parse(endTime),
+        StartTime = DateTime.Parse(startTime),
+        Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList(),
+        HostingRoom = _db.Rooms.First(r => r.ID == roomId),
+        Owner = _db.Attendees.First(a => a.FirstName == "William")
+      };
 
       //TODO: GET RID OF HARDCODED OWNER ONCE OWIN STUFF IS FIXED
-      meeting.Owner = _db.Attendees.First(a => a.FirstName == "William");
 
       try
       {
         _db.Meetings.Add(meeting);
         _db.SaveChanges();
-        return Json(new {success = true, meeting = new
+        return Json(new
         {
-          id = meeting.ID,
-          title = meeting.Title,
-          start = meeting.StartTime,
-          end = meeting.EndTime
-        }});
+          success = true,
+          meeting = new
+          {
+            id = meeting.ID,
+            title = meeting.Title,
+            start = meeting.StartTime,
+            end = meeting.EndTime
+          }
+        });
       }
       catch (Exception e)
       {
-        return Json(new {success = false, error = e.Message});
+        return Json(new { success = false, error = e.Message });
       }
     }
     // SUPER INSECURE BUT IIS IS REALY STUPID
@@ -255,11 +282,11 @@ namespace MeetingCoordinator.Controllers
       {
         this._db.Meetings.Remove(this._db.Meetings.First(m => m.ID == id));
         this._db.SaveChanges();
-        return Json(new {success = true}, JsonRequestBehavior.AllowGet);
+        return Json(new { success = true }, JsonRequestBehavior.AllowGet);
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-        return Json(new {success = false, error = e.Message}, JsonRequestBehavior.AllowGet);
+        return Json(new { success = false, error = e.Message }, JsonRequestBehavior.AllowGet);
       }
     }
   }
