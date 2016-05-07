@@ -252,8 +252,8 @@
                 });
                 // We need to filter out the attributes we need for Attendees
                 var attendees = [];
-                response.attendees.forEach(function (attendee) {
-                    attendees.push(attendee.firstName + " " + attendee.lastName);
+                response.selectedAttendees.forEach(function (attendee) {
+                    attendees.push(attendee.FirstName + " " + attendee.LastName);
                 });
                 // Update the details for the modal
                 $("#detail-attendees").text(attendees.join(", "));
@@ -353,11 +353,30 @@
                         dataType: "json",
                         success: function (data, status) {
                             if (status) {
+                                var error_alert = $(activeModal).find('div[name=error-messages]');
+                                error_alert.empty();
+
+                                var save_button;
+                                if (activeModal === '#meeting-create') {
+                                    save_button = $(activeModal).find('button[id=save-new-meeting]');
+                                } else if (activeModal === '#meeting-edit') {
+                                    save_button = $(activeModal).find('button[id=save-meeting-edit]');
+                                }
+
                                 if (!data.meetingAvailable) {
+                                    save_button.prop('disabled', true);
+                                    error_alert.show();
+
+                                    error_alert.append('<ul style="list-style-type:disc">');
                                     for (var i = 0; i < data.errors.Data.length; i++) {
                                         //TODO: show actual error messages to the user
                                         console.log(data.errors.Data[i]);
+                                        error_alert.append('<li>' + data.errors.Data[i] + '</li>');
                                     }
+                                    error_alert.append('</ul>');
+                                } else {
+                                    save_button.prop('disabled', false);
+                                    error_alert.hide();
                                 }
                             }
                         }
