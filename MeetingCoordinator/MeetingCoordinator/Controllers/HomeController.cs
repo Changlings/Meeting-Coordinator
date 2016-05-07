@@ -221,32 +221,6 @@ namespace MeetingCoordinator.Controllers
             });
         }
 
-        //[HttpPost]
-        //public ActionResult EditMeeting()
-        //{
-        //    var meetingId = int.Parse(Request.Form.Get("meeting-id"));
-        //    var meeting = _db.Meetings.Find(meetingId);
-
-        //    if (meeting == null)
-        //    {
-        //        return Json(new { success = false, error = "No meeting with that ID found" });
-        //    }
-        //    var title = Request.Form.Get("title");
-        //    var description = Request.Form.Get("description");
-        //    var startTime = Request.Form.Get("start-time");
-        //    var endTime = Request.Form.Get("end-time");
-        //    var attendeeIds = Request.Form.Get("attendees").Split(',').Select(int.Parse).ToList();
-
-        //    meeting.Title = title;
-        //    meeting.Description = description;
-        //    meeting.EndTime = DateTime.Parse(endTime);
-        //    meeting.StartTime = DateTime.Parse(startTime);
-        //    meeting.Attendees = _db.Attendees.Where(a => attendeeIds.Contains(a.ID)).ToList();
-        //    _db.SaveChangesAsync();
-
-        //    return Json(new { success = true });
-        //}
-
         [HttpPost]
         public ActionResult SaveMeeting()
         {
