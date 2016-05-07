@@ -7,6 +7,13 @@
       </div>
       <div class="modal-body">
         <form>
+
+          <div class="form-group" hidden>
+              <div class="controls">
+                  <input type="text" value="" name="id" />
+              </div>
+          </div>
+
           <div class="form-group">
             <label class="form-label">Title</label>
             <span class="help">e.g: Jim's Surprise Birthday Party</span>
@@ -22,29 +29,11 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Start Time</label>
-            <div class="controls">
-              <input type="datetime-local" value="" name="start-time" class="form-control" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">End Time</label>
-            <div class="controls">
-              <input type="datetime-local" value="" name="start-time" class="form-control" />
-            </div>
-          </div>
 
           <div class="form-group">
             <label class="form-label">Attendees</label>
             <div class="controls">
-              <select multiple name="attendees" class="form-control">
-                <option value="1">Attendee 1</option>
-                <option value="2">Attendee 2</option>
-                <option value="3">Attendee 3</option>
-                <option value="4">Attendee 4</option>
-                <option value="5">Attendee 5</option>
+              <select multiple name="attendees" id="attendees-multiple-select" class="form-control">
               </select>
             </div>
           </div>
@@ -53,14 +42,24 @@
             <label class="form-label">Meeting Room</label>
             <div class="controls">
               <select name="meeting-room" class="form-control">
-                <option value="1">Room 1</option>
-                <option value="2">Room 2</option>
-                <option value="3">Room 3</option>
-                <option value="4">Room 4</option>
-                <option value="5">Room 5</option>
               </select>
             </div>
           </div>
+
+          <div class="form-group">
+            <label class="form-label">Start Time</label>
+            <div class="controls">
+              <input type="datetime-local" value="" name="start-time" id="start-time-input" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">End Time</label>
+            <div class="controls">
+              <input type="datetime-local" value="" name="end-time" id="end-time-input" class="form-control" />
+            </div>
+          </div>
+
         </form>
       </div>
       <div class="modal-footer">
