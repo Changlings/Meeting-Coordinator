@@ -10,29 +10,34 @@ using Microsoft.AspNet.Identity;
 using System.Web.Script.Serialization;
 using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
+using Microsoft.Owin.Security;
 
 namespace MeetingCoordinator.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
+        private IAuthenticationManager Authentication => HttpContext.GetOwinContext().Authentication;
 
-        //        [Authorize]
+        [Authorize]
         public ActionResult Index(int year = -1, int month = -1)
         {
-            //System.Diagnostics.Debugger.Launch();
-            //            int attendeeId = int.Parse(User.Identity.GetUserId());
-            // TODO: FIX THE DAMNED OWIN STUFF
-            var currentAttendee = _db.Attendees.First(a => a.FirstName == "Wes");
+            var user = User.Identity;
+            var attendeeID = Int32.Parse(User.Identity.Name);
+            var currentAttendee = _db.Attendees.First(a => a.ID == attendeeID);
+
             year = year == -1 ? DateTime.Now.Year : year;
             month = month == -1 ? DateTime.Now.Month : month;
             var thisMonthFirstDay = new DateTime(year, month, 1);
             var nextMonthFirstDay = thisMonthFirstDay.AddMonths(1);
             var ownMeetings = currentAttendee.OwnMeetings.Where(m => m.StartTime >= thisMonthFirstDay && m.EndTime < nextMonthFirstDay).OrderBy(m => m.StartTime).ToList();
             var attendingMeetings = currentAttendee.AttendingMeetings.Where(m => m.StartTime >= thisMonthFirstDay && m.EndTime < nextMonthFirstDay).OrderBy(m => m.StartTime).ToList();
+
+            ViewBag.username = currentAttendee.Username;
             ViewBag.meetings = ownMeetings.Union(attendingMeetings).ToList();
             ViewBag.ownMeetings = ownMeetings;
             ViewBag.attendingMeetings = attendingMeetings;
+
             return View();
         }
 
@@ -77,8 +82,10 @@ namespace MeetingCoordinator.Controllers
         [HttpGet]
         public ActionResult GetMeetingsForMonth(DateTime month)
         {
+            var attendeeID = Int32.Parse(User.Identity.Name);
+            var currentAttendee = _db.Attendees.First(a => a.ID == attendeeID);
+
             var endTime = month.AddMonths(1);
-            var currentAttendee = _db.Attendees.First(a => a.FirstName == "Wes");
             var ownMeetings =
               currentAttendee.OwnMeetings.Where(m => m.StartTime >= month && m.EndTime < endTime)
                 .OrderBy(m => m.StartTime)
@@ -238,6 +245,7 @@ namespace MeetingCoordinator.Controllers
             var startTime = Request.Form.Get("start_time");
             var endTime = Request.Form.Get("end_time");
 
+            var attendeeID = Int32.Parse(User.Identity.Name);
             var meeting = new Meeting
             {
                 Title = title,
@@ -246,9 +254,8 @@ namespace MeetingCoordinator.Controllers
                 StartTime = DateTime.Parse(startTime),
                 Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList(),
                 HostingRoom = _db.Rooms.First(r => r.ID == roomId),
-                //TODO: GET RID OF HARDCODED OWNER ONCE OWIN STUFF IS FIXED
-                Owner = _db.Attendees.First(a => a.FirstName == "William")
-            };
+                Owner = _db.Attendees.First(a => a.ID == attendeeID)
+        };
 
             try
             {

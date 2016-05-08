@@ -8,7 +8,7 @@
     <div class="user-info-wrapper">
       <div class="user-info">
         <div class="greeting">Welcome</div>
-        <div class="username">@(User.Identity.Name.Length > 0 ? User.Identity.Name : "Attendee")</div>
+        <div class="username">@(ViewBag.username.Length > 0 ? ViewBag.username : "Attendee")</div>
       </div>
     </div>
     <!-- END MINI-PROFILE -->
