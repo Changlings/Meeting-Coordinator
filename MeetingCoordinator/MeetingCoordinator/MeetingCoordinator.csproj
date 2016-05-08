@@ -219,8 +219,6 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\js\main.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Scripts\respond.js" />
-    <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -231,17 +229,9 @@
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
-    <Content Include="Views\Manage\AddPhoneNumber.cshtml" />
-    <Content Include="Views\Manage\ChangePassword.cshtml" />
-    <Content Include="Views\Manage\Index.cshtml" />
-    <Content Include="Views\Manage\ManageLogins.cshtml" />
-    <Content Include="Views\Manage\SetPassword.cshtml" />
-    <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
-    <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_NavigationHeaderPartial.cshtml" />
     <Content Include="Views\Shared\_ContentHeaderPartial.cshtml" />
@@ -253,16 +243,50 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Scripts\css\" />
-    <Folder Include="Scripts\img\" />
-    <Folder Include="Scripts\plugins\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\css\animate.min.css" />
+    <Content Include="Scripts\css\bootstrap-table-responsive.css" />
+    <Content Include="Scripts\css\custom-icon-set.css" />
+    <Content Include="Scripts\css\large_screen_tweak.css" />
+    <Content Include="Scripts\css\magic_space.css" />
+    <Content Include="Scripts\css\print.css" />
+    <Content Include="Scripts\css\responsive.css" />
+    <Content Include="Scripts\css\style.css" />
+    <Content Include="Scripts\css\rtl\responsive.css" />
+    <Content Include="Scripts\css\rtl\style.css" />
+    <Content Include="Scripts\css\themes\coporate\responsive.css" />
+    <Content Include="Scripts\css\themes\coporate\style.css" />
+    <Content Include="Scripts\css\themes\default\responsive.css" />
+    <Content Include="Scripts\css\themes\default\style.css" />
+    <Content Include="Scripts\css\themes\elegant\responsive.css" />
+    <Content Include="Scripts\css\themes\elegant\style.css" />
+    <Content Include="Scripts\css\themes\simple\responsive.css" />
+    <Content Include="Scripts\css\themes\simple\style.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\js\login.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\img\logo-b.png" />
+    <Content Include="Scripts\img\logo-b2x.png" />
+    <Content Include="Scripts\img\logo.png" />
+    <Content Include="Scripts\img\logo2x.png" />
+    <Content Include="Scripts\img\notification-alert.png" />
+    <Content Include="Scripts\img\pullup.png" />
+    <Content Include="Scripts\img\pullup2x.png" />
+    <Content Include="Scripts\img\sidebar-menu-arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\plugins\breakpoints.js" />
+    <Content Include="Scripts\plugins\jquery-1.8.3.min.js" />
+    <Content Include="Scripts\plugins\moment.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Scripts\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="Scripts\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
-    <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>

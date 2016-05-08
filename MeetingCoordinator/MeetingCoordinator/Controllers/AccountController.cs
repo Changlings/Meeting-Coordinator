@@ -34,7 +34,7 @@ namespace MeetingCoordinator.Controllers
         {
             ViewBag.ReturnUrl = returnUrl;
 
-            if(Authentication.User.Identity.IsAuthenticated)
+            if (Authentication.User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -67,7 +67,7 @@ namespace MeetingCoordinator.Controllers
                 {
                     
                     var identity = new ClaimsIdentity(
-                        new []
+                    new[]
                         {
                             new Claim(ClaimTypes.NameIdentifier, $"{attendee.ID}"),
                             new Claim(ClaimTypes.Role, "attendee"), 
@@ -89,6 +89,13 @@ namespace MeetingCoordinator.Controllers
             return View(model);
         }
 
+        [Authorize]
+        public ActionResult Logout()
+        {
+          AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+          return RedirectToAction("Login");
+        }
+
         public String hashSha256(String password)
         {
             SHA256Managed crypt = new SHA256Managed();
@@ -97,7 +104,7 @@ namespace MeetingCoordinator.Controllers
             //TODO: people were reporting problems with using ASCII as the encoding scheme, but I don't know enough to say that UTF8 is the correct choice for us
             byte[] hashBytes = crypt.ComputeHash(Encoding.UTF8.GetBytes(password), 0, Encoding.UTF8.GetByteCount(password));
 
-            foreach(byte b in hashBytes)
+            foreach (byte b in hashBytes)
             {
                 //each byte as two uppercase hex characters
                 hash.Append(b.ToString("x2"));

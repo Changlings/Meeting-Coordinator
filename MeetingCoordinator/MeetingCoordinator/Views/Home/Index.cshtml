@@ -17,19 +17,22 @@
             @foreach (Meeting meeting in ViewBag.meetings)
             {
               <div class="external-event">
-                <span class="meeting" 
-                      data-title="@meeting.Title" 
-                      data-attendees="@string.Join(",", meeting.Attendees.AsEnumerable().Select(m => m.ID).ToArray())" 
+                <span class="meeting"
+                      data-title="@meeting.Title"
+                      data-attendees="@string.Join(",", meeting.Attendees.AsEnumerable().Select(m => m.ID).ToArray())"
                       data-id="@meeting.ID"
                       data-start="@meeting.StartTime.ToString("O")"
                       data-end="@meeting.StartTime.ToString("O")">
                   @meeting.Title
                 </span>
-                <span class="pull-right">
-                  <i class="edit-meeting fa fa-pencil"></i>
-                  <i style="padding-left: 5px; padding-right: 5px;"></i>
-                  <i class="delete-meeting fa fa-times"></i>
-                </span>
+                @if (ViewBag.ownMeetings.Contains(meeting))
+                {
+                  <span class="pull-right">
+                    <i class="edit-meeting fa fa-pencil"></i>
+                    <i style="padding-left: 5px; padding-right: 5px;"></i>
+                    <i class="delete-meeting fa fa-times"></i>
+                  </span>
+                }
               </div>
             }
           </div>
@@ -63,21 +66,14 @@
     </div>
   </div>
 </div>
-@section Scripts {
-  @Scripts.Render("~/Scripts/js/calender.js",
-        "~/Scripts/plugins/fullcalendar/fullcalendar.min.js",
-        "~/Scripts/plugins/moment.js",
-        "~/Scripts/js/main.js")
-}
 @section Styles {
-  @Styles.Render("~/Scripts/plugins/fullcalendar/fullcalendar.css")
   <style>
-    .calender-options-wrapper .external-event {
+    .calender-options-wrapper .external-event, .fc-event {
       cursor: initial;
     }
 
-    .calender-options-wrapper .external-event span {
-      cursor: pointer;
-    }
+      .calender-options-wrapper .external-event span, .fc-event {
+        cursor: pointer;
+      }
   </style>
 }
