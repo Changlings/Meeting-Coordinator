@@ -277,6 +277,43 @@ namespace MeetingCoordinator.Controllers
             var id = Request.Form.Get("id");
             var title = Request.Form.Get("title");
             var description = Request.Form.Get("description");
+            var startTime = Request.Form.Get("start_time");
+            var endTime = Request.Form.Get("end_time");
+
+            // Create a personal event
+            if (Request.Form.Get("is_personal_event") != null && Request.Form.Get("is_personal_event") != "false")
+            {
+                var m = new Meeting
+                {
+                    Title = title,
+                    Description = description,
+                    StartTime = DateTime.Parse(startTime),
+                    EndTime = DateTime.Parse(endTime)
+                };
+                // Entity framework is being a nuisance. Hacking "updates" to a meeting
+                if (id != null)
+                {
+                    var lookup_id = int.Parse(id);
+                    this._db.Meetings.Remove(this._db.Meetings.First(mtng => mtng.ID == lookup_id));
+                    this._db.SaveChanges();
+                }
+                _db.Meetings.Add(m);
+                _db.SaveChanges();
+                return Json(new
+                {
+                    success = true,
+                    meeting = new
+                    {
+                        id = m.ID,
+                        title = m.Title,
+                        start = m.StartTime,
+                        end = m.EndTime,
+                        is_personal_event = true
+                    }
+                });
+            }
+
+            // Create 
             var roomId = int.Parse(Request.Form.Get("room_id"));
 
             var attendeeIds = Request.Form.Get("attendee_ids[]");
@@ -285,8 +322,7 @@ namespace MeetingCoordinator.Controllers
                 select Convert.ToInt32(s)
             ).ToList<int>();
 
-            var startTime = Request.Form.Get("start_time");
-            var endTime = Request.Form.Get("end_time");
+            
 
             var attendeeID = Int32.Parse(User.Identity.Name);
             var meeting = new Meeting
@@ -302,30 +338,13 @@ namespace MeetingCoordinator.Controllers
 
             try
             {
-                if (id == null)
+                if (id != null)
                 {
-                    _db.Meetings.Add(meeting);
-                    _db.SaveChanges();
-                }
-                else
-                {
-                    var oldMeeting = _db.Meetings.Find(Int32.Parse(id));
-
-                    if (oldMeeting == null)
-                    {
-                        return Json(new { success = false, error = "No meeting with that ID found" });
-                        throw new Exception();
-                    }
-
-                    oldMeeting.Title = meeting.Title;
-                    oldMeeting.Description = meeting.Description;
-                    oldMeeting.EndTime = meeting.EndTime;
-                    oldMeeting.StartTime = meeting.StartTime;
-                    oldMeeting.Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList();
-                    oldMeeting.HostingRoom = meeting.HostingRoom;
-                    _db.SaveChangesAsync();
+                    this._db.Meetings.Remove(this._db.Meetings.Find(int.Parse(id)));
                 }
 
+                this._db.Meetings.Add(meeting);
+                this._db.SaveChanges();
                 return Json(new
                 {
                     success = true,

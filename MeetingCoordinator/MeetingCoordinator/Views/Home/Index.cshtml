@@ -19,6 +19,7 @@
               <div class="external-event">
                 <span class="meeting"
                       data-title="@meeting.Title"
+                      data-is-personal-event="@(meeting.Attendees.Count == 0 && meeting.HostingRoom == null ? "true" : "false")"
                       data-attendees="@string.Join(",", meeting.Attendees.AsEnumerable().Select(m => m.ID).ToArray())"
                       data-id="@meeting.ID"
                       data-start="@meeting.StartTime.ToString("O")"

@@ -12,7 +12,7 @@
                 var attendees = response.meetings[i].attendees.join(",");
                 var id = response.meetings[i].id;
                 $("#external-events").append('<div class="external-event">' +
-                  '<span class="meeting" data-title="' + title + '" data-attendees="' + attendees + '" data-id="' + id + '" data-start="' + start.toISOString() + '" data-end="' + end.toISOString() + '">' +
+                  '<span class="meeting" data-title="' + title + '" data-attendees="' + attendees + '" data-id="' + id + '" data-start="' + start.toISOString() + '" data-end="' + end.toISOString() + '" data-is-personal-event="'+attendees.length > 0+'">' +
                   title +
                   '</span>' +
                   '<span class="pull-right">' +
@@ -90,7 +90,16 @@
      * displaying the Edit Meeting modal
      */
     $('.edit-meeting').click(function (e) {
+        var meeting_thing = $(this).closest(".external-event").find(".meeting")[0];
         var meetingId = $(this).closest(".external-event").find(".meeting")[0].dataset["id"];
+        // Personal events don't have rooms or attendees, so hide the relative inputs
+        if (meeting_thing.dataset['is-personal-event'] == "true") {
+            $('#meeting-edit').find('select[name=meeting-room]').closest("form-group").css("display", "none");
+            $('#meeting-edit').find('select[name=attendees]').closest("form-group").css("display", "none");
+        } else {
+            $('#meeting-edit').find('select[name=meeting-room]').closest("form-group").css("display", "block");
+            $('#meeting-edit').find('select[name=attendees]').closest("form-group").css("display", "block");
+        }
 
         $.ajax({
             type: "GET",
@@ -266,7 +275,7 @@
                 $('#meeting-details').modal("show");
             });
         }
-    }, ".external-event > span.meeting, .external-event > span.edit-meeting");
+    }, ".external-event > span.meeting");
 
     /*
      * Event handler for clicking the "Create Meeting" button
@@ -416,16 +425,21 @@
 
         var start_time = $(modal).find('input[id=start-time-input]').val();
         var end_time = $(modal).find('input[id=end-time-input]').val();
+        var data = {
+            id: id,
+            title: title,
+            description: description,
+            room_id: room_id,
+            attendee_ids: attendee_ids,
+            start_time: start_time,
+            end_time: end_time
+        };
+
+        if (modal == "#meeting-create") {
+            data['is_personal_event'] = $("#meeting-create").find("input[name=is-personal-event]")[0].checked;
+        }
         $.ajax({
-            data: {
-                id: id,
-                title: title,
-                description: description,
-                room_id: room_id,
-                attendee_ids: attendee_ids,
-                start_time: start_time,
-                end_time: end_time
-            },
+            data: data,
             type: "POST",
             dataType: "json",
             url: "/Home/SaveMeeting",
@@ -435,7 +449,7 @@
                     //don't want to reappend a meeting if we're just editing one
                     if (modal === '#meeting-create') {
                         alert("Meeting created!");
-                        $('#external-events').append('<div class="external-event">' + '<span class="meeting" data-title="' + title + '" data-attendees="' + attendee_ids.join(",") + '" data-id="' + response.meeting.id + '">' + title + '</span>' + '<span class="pull-right">' + '<i class="edit-meeting fa fa-pencil"></i>' + '<i style="padding-left: 5px; padding-right: 5px;"></i>' + '<i class="delete-meeting fa fa-times"></i>' + '</span>');
+                        $('#external-events').append('<div class="external-event">' + '<span class="meeting" data-is-personal-event="'+response.meeting.is_personal_event+'" data-title="' + title + '" data-attendees="' + attendee_ids.join(",") + '" data-id="' + response.meeting.id + '">' + title + '</span>' + '<span class="pull-right">' + '<i class="edit-meeting fa fa-pencil"></i>' + '<i style="padding-left: 5px; padding-right: 5px;"></i>' + '<i class="delete-meeting fa fa-times"></i>' + '</span>');
                         $('#calendar').fullCalendar('renderEvent', response.meeting);
                     }
 
