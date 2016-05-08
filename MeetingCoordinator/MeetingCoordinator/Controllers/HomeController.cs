@@ -234,6 +234,7 @@ namespace MeetingCoordinator.Controllers
                 {
                     //get the attendees that exist both in the selected attendees list and the attendees that are attending a meeting happening during the selected times
                     var overlappingAttendees = m.Attendees.Intersect(attendeeList).ToList();
+                    overlappingAttendees.Add(m.Owner); //also add the owner of the other meeting to the overlapping attendees to make sure they also don't have a meeting conflicting with this one
                     foreach (var a in overlappingAttendees)
                     {
                         errors.Add(a.FirstName + " " + a.LastName + " is already attending a meeting during this time.");
