@@ -118,6 +118,8 @@ namespace MeetingCoordinator.Controllers
             {
                 meetings = meetings.Select(m => new
                 {
+                    is_personal_event = m.Attendees.Count == 0 && m.HostingRoom == null,
+                    is_own_event = ownMeetings.Contains(m),
                     id = m.ID,
                     title = m.Title,
                     start = m.StartTime,
@@ -279,6 +281,7 @@ namespace MeetingCoordinator.Controllers
             var description = Request.Form.Get("description");
             var startTime = Request.Form.Get("start_time");
             var endTime = Request.Form.Get("end_time");
+            var attendeeID = Int32.Parse(User.Identity.Name);
 
             // Create a personal event
             if (Request.Form.Get("is_personal_event") != null && Request.Form.Get("is_personal_event") != "false")
@@ -288,7 +291,8 @@ namespace MeetingCoordinator.Controllers
                     Title = title,
                     Description = description,
                     StartTime = DateTime.Parse(startTime),
-                    EndTime = DateTime.Parse(endTime)
+                    EndTime = DateTime.Parse(endTime),
+                    Owner = _db.Attendees.First(a => a.ID == attendeeID)
                 };
                 // Entity framework is being a nuisance. Hacking "updates" to a meeting
                 if (id != null)
@@ -304,6 +308,7 @@ namespace MeetingCoordinator.Controllers
                     success = true,
                     meeting = new
                     {
+                        oldMeetingID = id,
                         id = m.ID,
                         title = m.Title,
                         start = m.StartTime,
@@ -324,7 +329,7 @@ namespace MeetingCoordinator.Controllers
 
             
 
-            var attendeeID = Int32.Parse(User.Identity.Name);
+            
             var meeting = new Meeting
             {
                 Title = title,

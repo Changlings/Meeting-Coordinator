@@ -11,16 +11,19 @@
                 var title = response.meetings[i].title;
                 var attendees = response.meetings[i].attendees.join(",");
                 var id = response.meetings[i].id;
-                $("#external-events").append('<div class="external-event">' +
-                  '<span class="meeting" data-title="' + title + '" data-attendees="' + attendees + '" data-id="' + id + '" data-start="' + start.toISOString() + '" data-end="' + end.toISOString() + '" data-is-personal-event="'+attendees.length > 0+'">' +
-                  title +
-                  '</span>' +
-                  '<span class="pull-right">' +
-                  '<i class="edit-meeting fa fa-pencil"></i>' +
-                  '<i style="padding-left: 5px; padding-right: 5px;"></i>' +
-                  '<i class="delete-meeting fa fa-times"></i>' +
-                  '</span>' +
-                  '</div>');
+                var html_to_append = '<div class="external-event">' +
+                    '<span class="meeting" data-title="' + title + '" data-attendees="' + attendees + '" data-id="' + id + '" data-start="' + start.toISOString() + '" data-end="' + end.toISOString() + '" data-is-personal-event="' + response.meetings[i].is_personal_event + '">' +
+                    title +
+                    '</span>';
+                if (response.meetings[i].is_own_event) {
+                    html_to_append += '<span class="pull-right">' +
+                        '<i class="edit-meeting fa fa-pencil"></i>' +
+                        '<i style="padding-left: 5px; padding-right: 5px;"></i>' +
+                        '<i class="delete-meeting fa fa-times"></i>' +
+                        '</span>';
+                }
+                html_to_append += "</div>";
+                $("#external-events").append(html_to_append);
                 $("#calendar").fullCalendar('renderEvent', {
                     id: id,
                     start: start,
@@ -89,109 +92,113 @@
      * Event listener for handling getting data about a meeting from the server and
      * displaying the Edit Meeting modal
      */
-    $('.edit-meeting').click(function (e) {
-        var meeting_thing = $(this).closest(".external-event").find(".meeting")[0];
-        var meetingId = $(this).closest(".external-event").find(".meeting")[0].dataset["id"];
-        // Personal events don't have rooms or attendees, so hide the relative inputs
-        if (meeting_thing.dataset['is-personal-event'] == "true") {
-            $('#meeting-edit').find('select[name=meeting-room]').closest("form-group").css("display", "none");
-            $('#meeting-edit').find('select[name=attendees]').closest("form-group").css("display", "none");
-        } else {
-            $('#meeting-edit').find('select[name=meeting-room]').closest("form-group").css("display", "block");
-            $('#meeting-edit').find('select[name=attendees]').closest("form-group").css("display", "block");
-        }
-
-        $.ajax({
-            type: "GET",
-            dataType: "json",
-            data: {
-                id: meetingId
-            },
-            url: "/Home/RetrieveMeeting",
-            async: true,
-            success: function (data) {
-                var id = data['id'];
-                var title = data['title'];
-                var description = data['description'];
-                var startTime = data['startTime'];
-                var endTime = data['endTime'];
-                var selectedAttendees = data['selectedAttendees'];
-                var selectedRoom = data['selectedRoom'];
-                var allRooms = data['allRooms'];
-                var allAttendees = data['allAttendees'];
-
-                //C# returns dates in seconds since Epoch format. strip uneccesary characters and convert to javascript date
-                startTime = new Date(parseInt(startTime.substr(6)));
-                endTime = new Date(parseInt(endTime.substr(6)));
-
-                //datetime-local inputs want an ISO formatted string so here we go
-
-                //Adjustzero offset times to a relevant time zone
-                var timeZoneOffset = startTime.getTimezoneOffset() * 60 * 1000;
-
-                // Subtract the time zone offset from the current UTC date, and pass
-                //  that into the Date constructor to get a date whose UTC date/time is
-                //  adjusted by timezoneOffset for display purposes.
-                startTime = new Date(startTime.getTime() - timeZoneOffset);
-                endTime = new Date(endTime.getTime() - timeZoneOffset);
-
-                // Get date's ISO date string and remove the Z.
-                var startTimeString = startTime.toISOString().replace('Z', '');
-                var endTimeString = endTime.toISOString().replace('Z', '');
-
-                if (id) {
-                    var id_input = $('#meeting-edit').find('input[name=id]');
-                    id_input.val(id);
-                }
-                if (title) {
-                    var title_input = $('#meeting-edit').find('input[name=title]');
-                    title_input.val(title);
-                }
-                if (description) {
-                    var description_input = $('#meeting-edit').find('textarea[name=description]');
-                    description_input.empty();
-                    description_input.append(description);
-                }
-                if (startTime) {
-                    var startTime_input = $('#meeting-edit').find('input[name=start-time]');
-                    startTime_input.val(startTimeString);
-                }
-                if (endTime) {
-                    var endTime_input = $('#meeting-edit').find('input[name=end-time]');
-                    endTime_input.val(endTimeString);
-                }
-                if (allRooms) {
-                    var meeting_room_select = $('#meeting-edit').find('select[name=meeting-room]');
-                    meeting_room_select.empty();
-                    for (var i = 0; i < allRooms.length; i++) {
-                        if (allRooms[i].ID == selectedRoom.ID) {
-                            meeting_room_select.append('<option value="' + allRooms[i].ID + '" selected>' + allRooms[i].RoomNo + '</option>');
-                        } else {
-                            meeting_room_select.append('<option value="' + allRooms[i].ID + '">' + allRooms[i].RoomNo + '</option>');
-                        }
-                    }
-                }
-                if (allAttendees) {
-                    var attendee_select = $('#meeting-edit').find('select[name=attendees]');
-                    attendee_select.empty();
-                    for (var i = 0; i < allAttendees.length; i++) {
-                        //containsAttendee returns -1 if value is not found in array, otherwise returns the index value
-                        if (containsAttendee(selectedAttendees, allAttendees[i]) > -1) {
-                            attendee_select.append('<option value="' + allAttendees[i].ID + '" selected>' + allAttendees[i].FirstName + ' ' + allAttendees[i].LastName + '</option>');
-                        } else {
-                            attendee_select.append('<option value="' + allAttendees[i].ID + '">' + allAttendees[i].FirstName + ' ' + allAttendees[i].LastName + '</option>');
-                        }
-                    }
-                }
+    $(document).on({
+        click: function(e) {
+            var meeting_thing = $(this).closest(".external-event").find(".meeting")[0];
+            var meetingId = $(this).closest(".external-event").find(".meeting")[0].dataset["id"];
+            // Personal events don't have rooms or attendees, so hide the relative inputs
+            if (meeting_thing.dataset['isPersonalEvent'] == "true") {
+                $('#meeting-edit').find('select[name=meeting-room]').closest(".form-group").css("display", "none");
+                $('#meeting-edit').find('select[name=attendees]').closest(".form-group").css("display", "none");
+            } else {
+                $('#meeting-edit').find('select[name=meeting-room]').closest(".form-group").css("display", "block");
+                $('#meeting-edit').find('select[name=attendees]').closest(".form-group").css("display", "block");
             }
-        })
 
-        $('#meeting-edit').modal("show");
-    });
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                data: {
+                    id: meetingId
+                },
+                url: "/Home/RetrieveMeeting",
+                async: true,
+                success: function(data) {
+                    var id = data['id'];
+                    var title = data['title'];
+                    var description = data['description'];
+                    var startTime = data['startTime'];
+                    var endTime = data['endTime'];
+                    var selectedAttendees = data['selectedAttendees'];
+                    var selectedRoom = data['selectedRoom'];
+                    var allRooms = data['allRooms'];
+                    var allAttendees = data['allAttendees'];
 
-    $('#save-meeting-edit').click(function (e) {
-        saveMeeting('#meeting-edit');
-    });
+                    //C# returns dates in seconds since Epoch format. strip uneccesary characters and convert to javascript date
+                    startTime = new Date(parseInt(startTime.substr(6)));
+                    endTime = new Date(parseInt(endTime.substr(6)));
+
+                    //datetime-local inputs want an ISO formatted string so here we go
+
+                    //Adjustzero offset times to a relevant time zone
+                    var timeZoneOffset = startTime.getTimezoneOffset() * 60 * 1000;
+
+                    // Subtract the time zone offset from the current UTC date, and pass
+                    //  that into the Date constructor to get a date whose UTC date/time is
+                    //  adjusted by timezoneOffset for display purposes.
+                    startTime = new Date(startTime.getTime() - timeZoneOffset);
+                    endTime = new Date(endTime.getTime() - timeZoneOffset);
+
+                    // Get date's ISO date string and remove the Z.
+                    var startTimeString = startTime.toISOString().replace('Z', '');
+                    var endTimeString = endTime.toISOString().replace('Z', '');
+
+                    if (id) {
+                        var id_input = $('#meeting-edit').find('input[name=id]');
+                        id_input.val(id);
+                    }
+                    if (title) {
+                        var title_input = $('#meeting-edit').find('input[name=title]');
+                        title_input.val(title);
+                    }
+                    if (description) {
+                        var description_input = $('#meeting-edit').find('textarea[name=description]');
+                        description_input.empty();
+                        description_input.append(description);
+                    }
+                    if (startTime) {
+                        var startTime_input = $('#meeting-edit').find('input[name=start-time]');
+                        startTime_input.val(startTimeString);
+                    }
+                    if (endTime) {
+                        var endTime_input = $('#meeting-edit').find('input[name=end-time]');
+                        endTime_input.val(endTimeString);
+                    }
+                    if (allRooms) {
+                        var meeting_room_select = $('#meeting-edit').find('select[name=meeting-room]');
+                        meeting_room_select.empty();
+                        for (var i = 0; i < allRooms.length; i++) {
+                            if (allRooms[i].ID == selectedRoom.ID) {
+                                meeting_room_select.append('<option value="' + allRooms[i].ID + '" selected>' + allRooms[i].RoomNo + '</option>');
+                            } else {
+                                meeting_room_select.append('<option value="' + allRooms[i].ID + '">' + allRooms[i].RoomNo + '</option>');
+                            }
+                        }
+                    }
+                    if (allAttendees) {
+                        var attendee_select = $('#meeting-edit').find('select[name=attendees]');
+                        attendee_select.empty();
+                        for (var i = 0; i < allAttendees.length; i++) {
+                            //containsAttendee returns -1 if value is not found in array, otherwise returns the index value
+                            if (containsAttendee(selectedAttendees, allAttendees[i]) > -1) {
+                                attendee_select.append('<option value="' + allAttendees[i].ID + '" selected>' + allAttendees[i].FirstName + ' ' + allAttendees[i].LastName + '</option>');
+                            } else {
+                                attendee_select.append('<option value="' + allAttendees[i].ID + '">' + allAttendees[i].FirstName + ' ' + allAttendees[i].LastName + '</option>');
+                            }
+                        }
+                    }
+                }
+            })
+
+            $('#meeting-edit').modal("show");
+        }
+    }, '.edit-meeting');
+
+    $(document).on({
+        click: function(e) {
+            saveMeeting("#meeting-edit");
+        }
+    }, '#save-meeting-edit');
 
     //search array for a certain attendee based on the IDs of the attendees
     function containsAttendee(array, attendee) {
@@ -251,6 +258,7 @@
         click: function () {
             // Get the ID of this meeting from the data-id attribute
             var id = this.dataset["id"];
+            var that = this;
             // Fire off a JSON request to get the meeting according to the id
             $.getJSON("/Home/RetrieveMeeting", {
                 id: id
@@ -265,10 +273,13 @@
                     attendees.push(attendee.FirstName + " " + attendee.LastName);
                 });
                 // Update the details for the modal
-                $("#detail-attendees").text(attendees.join(", "));
+                
                 $("#detail-title").text(response.title);
                 $("#detail-description").text(response.description);
-                $("#detail-room").text(response.selectedRoom.RoomNo);
+                if (that.dataset['isPersonalEvent'] == 'false') {
+                    $("#detail-attendees").text(attendees.join(", "));
+                    $("#detail-room").text(response.selectedRoom.RoomNo);
+                }
                 // Use moment.js to parse the times given back by the server into a nice message
                 $("#detail-time").text(moment(parseInt(/-?\d+/.exec(response.startTime))).format("MMMM Do YYYY, h:mm:ss a") + " to " + moment(parseInt(/-?\d+/.exec(response.endTime))).format("MMMM Do YYYY, h:mm:ss a"));
                 // Show the modal
@@ -395,6 +406,8 @@
             }
         }
     });
+
+
     $('#save-new-meeting').click(function (e) {
         saveMeeting('#meeting-create');
     });
@@ -434,10 +447,13 @@
             start_time: start_time,
             end_time: end_time
         };
-
+        // Check for personal event creation and updating
         if (modal == "#meeting-create") {
             data['is_personal_event'] = $("#meeting-create").find("input[name=is-personal-event]")[0].checked;
+        } else {
+            data['is_personal_event'] = $('#meeting-edit').find('#attendees-multiple-select').closest('.form-group').css('display') == 'none' && $('#meeting-edit').find('select[name=meeting-room]').closest('.form-group').css('display') == 'none';
         }
+
         $.ajax({
             data: data,
             type: "POST",
@@ -449,7 +465,7 @@
                     //only want to append the new meeting if we're creating one
                     if (modal === '#meeting-create') {
                         alert("Meeting created!");
-                        $('#external-events').append('<div class="external-event">' + '<span class="meeting" data-is-personal-event="'+response.meeting.is_personal_event+'" data-title="' + title + '" data-attendees="' + attendee_ids.join(",") + '" data-id="' + response.meeting.id + '">' + title + '</span>' + '<span class="pull-right">' + '<i class="edit-meeting fa fa-pencil"></i>' + '<i style="padding-left: 5px; padding-right: 5px;"></i>' + '<i class="delete-meeting fa fa-times"></i>' + '</span>');
+                        $('#external-events').append('<div class="external-event">' + '<span class="meeting" data-is-personal-event="' + response.meeting.is_personal_event + '" data-title="' + title + '" data-attendees="' + attendee_ids.join(",") + '" data-id="' + response.meeting.id + '">' + title + '</span>' + '<span class="pull-right">' + '<i class="edit-meeting fa fa-pencil"></i>' + '<i style="padding-left: 5px; padding-right: 5px;"></i>' + '<i class="delete-meeting fa fa-times"></i>' + '</span>');
                         $('#calendar').fullCalendar('renderEvent', response.meeting);
                     } else if (modal === '#meeting-edit') {
                         alert("Meeting updated!");
