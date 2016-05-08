@@ -390,6 +390,14 @@
         saveMeeting('#meeting-create');
     });
 
+    /*
+     * Event listener for toggling a personal event on event creation
+     */
+    $('input[name=is-personal-event]').change(function (e) {
+        $("#meeting-create").find("#attendees-multiple-select").closest('.form-group').css('display', this.checked ? 'none' : 'block');
+        $("#meeting-create").find("#meeting-room-select").closest('.form-group').css('display', this.checked ? 'none' : 'block');
+    });
+
     function saveMeeting(modal) {
         var id;
         if (modal === '#meeting-edit') {
