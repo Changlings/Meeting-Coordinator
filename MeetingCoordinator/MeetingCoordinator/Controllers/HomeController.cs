@@ -300,6 +300,8 @@ namespace MeetingCoordinator.Controllers
                 Owner = _db.Attendees.First(a => a.ID == attendeeID)
             };
 
+            //putting this up here so i can use it in the json response
+            var oldMeeting = _db.Meetings.Find(Int32.Parse(id));
             try
             {
                 if (id == null)
@@ -309,7 +311,7 @@ namespace MeetingCoordinator.Controllers
                 }
                 else
                 {
-                    var oldMeeting = _db.Meetings.Find(Int32.Parse(id));
+                    meeting.ID = Int32.Parse(id);
 
                     if (oldMeeting == null)
                     {
@@ -317,13 +319,16 @@ namespace MeetingCoordinator.Controllers
                         throw new Exception();
                     }
 
-                    oldMeeting.Title = meeting.Title;
-                    oldMeeting.Description = meeting.Description;
-                    oldMeeting.EndTime = meeting.EndTime;
-                    oldMeeting.StartTime = meeting.StartTime;
-                    oldMeeting.Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList();
-                    oldMeeting.HostingRoom = meeting.HostingRoom;
-                    _db.SaveChangesAsync();
+                    //oldMeeting.Title = meeting.Title;
+                    //oldMeeting.Description = meeting.Description;
+                    //oldMeeting.EndTime = meeting.EndTime;
+                    //oldMeeting.StartTime = meeting.StartTime;
+                    //oldMeeting.Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList();
+                    //oldMeeting.HostingRoom = meeting.HostingRoom;
+
+                    _db.Meetings.Remove(oldMeeting);
+                    _db.Meetings.Add(meeting);
+                    _db.SaveChanges();
                 }
 
                 return Json(new
@@ -331,6 +336,8 @@ namespace MeetingCoordinator.Controllers
                     success = true,
                     meeting = new
                     {
+                        //need to be able to remove the old meeting from the meetings list view by its id
+                        oldMeetingID = oldMeeting.ID,
                         id = meeting.ID,
                         title = meeting.Title,
                         start = meeting.StartTime,
