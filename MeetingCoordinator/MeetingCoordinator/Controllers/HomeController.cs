@@ -336,10 +336,12 @@ namespace MeetingCoordinator.Controllers
                 Owner = _db.Attendees.First(a => a.ID == attendeeID)
             };
 
+            //putting this up here so i can use it in the json response
+            var oldMeeting = _db.Meetings.Find(Int32.Parse(id));
             try
             {
                 if (id != null)
-                {
+                    {
                     this._db.Meetings.Remove(this._db.Meetings.Find(int.Parse(id)));
                 }
 
@@ -350,6 +352,8 @@ namespace MeetingCoordinator.Controllers
                     success = true,
                     meeting = new
                     {
+                        //need to be able to remove the old meeting from the meetings list view by its id
+                        oldMeetingID = oldMeeting.ID,
                         id = meeting.ID,
                         title = meeting.Title,
                         start = meeting.StartTime,
