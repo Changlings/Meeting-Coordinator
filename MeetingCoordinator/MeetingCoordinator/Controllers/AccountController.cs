@@ -20,20 +20,25 @@ namespace MeetingCoordinator.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-
         private ApplicationDbContext db = new ApplicationDbContext();
         private IAuthenticationManager Authentication => HttpContext.GetOwinContext().Authentication;
         public AccountController()
         {
         }
 
-
         //
         // GET: /Account/Login
+        [HttpGet]
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
+
+            if(Authentication.User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return View();
         }
 
@@ -66,8 +71,11 @@ namespace MeetingCoordinator.Controllers
                         {
                             new Claim(ClaimTypes.NameIdentifier, $"{attendee.ID}"),
                             new Claim(ClaimTypes.Role, "attendee"), 
-                        }, DefaultAuthenticationTypes.ApplicationCookie,
-                        ClaimTypes.NameIdentifier, ClaimTypes.Role);
+                        }, 
+                        DefaultAuthenticationTypes.ApplicationCookie,
+                        ClaimTypes.NameIdentifier, ClaimTypes.Role
+                    );
+
                     Authentication.SignIn(new AuthenticationProperties
                     {
                         IsPersistent = model.RememberMe
