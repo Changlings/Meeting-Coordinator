@@ -52,7 +52,7 @@ namespace MeetingCoordinator.Controllers
             {
                attendee = db.Attendees.First(u => u.Username == model.Username);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "No User by that name");
                 return View(model);
