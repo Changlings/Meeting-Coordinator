@@ -259,6 +259,7 @@
                 $("#detail-attendees").text(attendees.join(", "));
                 $("#detail-title").text(response.title);
                 $("#detail-description").text(response.description);
+                $("#detail-room").text(response.selectedRoom.RoomNo);
                 // Use moment.js to parse the times given back by the server into a nice message
                 $("#detail-time").text(moment(parseInt(/-?\d+/.exec(response.startTime))).format("MMMM Do YYYY, h:mm:ss a") + " to " + moment(parseInt(/-?\d+/.exec(response.endTime))).format("MMMM Do YYYY, h:mm:ss a"));
                 // Show the modal
