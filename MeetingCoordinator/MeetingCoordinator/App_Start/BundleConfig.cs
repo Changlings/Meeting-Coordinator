@@ -26,7 +26,8 @@ namespace MeetingCoordinator
                       "~/Scripts/css/animate.min.css",
                       "~/Scripts/css/style.css",
                       "~/Scripts/css/responsive.css",
-                      "~/Scripts/css/custom-icon-set.css"));
+                      "~/Scripts/css/custom-icon-set.css",
+                      "~/Scripts/plugins/fullcalendar/fullcalendar.css"));
 
             bundles.Add(new ScriptBundle("~/bundles/javascript").Include(
                       "~/Scripts/plugins/jquery-1.8.3.min.js",
@@ -36,7 +37,11 @@ namespace MeetingCoordinator
                       "~/Scripts/plugins/jquery-unveil/jquery.unveil.min.js",
                       "~/Scripts/plugins/jquery-block-ui/jqueryblockui.js",
                       "~/Scripts/plugins/jquery-scrollbar.min.js",
-                      "~/Scripts/plugins/jquery-numberAnimate/jquery.animateNumbers.js"));
+                      "~/Scripts/plugins/jquery-numberAnimate/jquery.animateNumbers.js",
+                      "~/Scripts/js/calender.js",
+                      "~/Scripts/plugins/fullcalendar/fullcalendar.min.js",
+                      "~/Scripts/plugins/moment.js",
+                      "~/Scripts/js/main.js"));
         }
     }
 }
