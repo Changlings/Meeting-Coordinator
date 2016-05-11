@@ -16,29 +16,53 @@ namespace MeetingCoordinator.Controllers
 {
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Store a constant open connection to the database for the life of the application.
+        /// This is okay to do for this application since we're only really using one controller
+        /// outside of the authentication process. If this were split up into multiple controllers,
+        /// then we would have to figure out a way to share a database context. Existing contexts
+        /// tend to not share changes with each other, so there could be some data inconsistency
+        /// </summary>
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
+        /// <summary>
+        /// Store a reference to the current OWIN authntication middleware. This assists in, you 
+        /// guessed it, authenticating a user!
+        /// </summary>
         private IAuthenticationManager Authentication => HttpContext.GetOwinContext().Authentication;
 
         /// <summary>
-        /// Initialize meetings list, calendar, and other values based on the logged in attendee and return this view
+        /// Initialize meetings list, calendar, and other values based on the logged in attendee and return this view.
+        /// This method is run every time the Home page is refreshed as well as when the user succesfully logs in
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
         /// <returns>The home page</returns>
         [Authorize]
-        public ActionResult Index(int year = -1, int month = -1)
+        public ActionResult Index()
         {
-            var user = User.Identity;
-            var attendeeID = Int32.Parse(User.Identity.Name);
+            // Grab the current user's record from the database
+            var attendeeID = int.Parse(User.Identity.Name);
             var currentAttendee = _db.Attendees.First(a => a.ID == attendeeID);
-
-            year = year == -1 ? DateTime.Now.Year : year;
-            month = month == -1 ? DateTime.Now.Month : month;
-            var thisMonthFirstDay = new DateTime(year, month, 1);
-            var nextMonthFirstDay = thisMonthFirstDay.AddMonths(1);
+            // We need to get all meetings and events for the current month since the 
+            // home page will show a calendar and event list with said meetings. To do that,
+            // the first day of the current month and the first day of the last month are used
+            // in the range checks for fetching from the database
+            var thisMonthFirstDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var nextMonthFirstDay = thisMonthFirstDay.AddMonths(1); // Can I just say that I love the DateTime library? <3
+            /* MySQL equivalent of 
+                 SELECT        attendees.*, meetings.*
+                   FROM       attendeejoinmeeting INNER JOIN
+                   attendees ON attendeejoinmeeting.AttendeeId = attendees.ID INNER JOIN
+                   meetings ON attendeejoinmeeting.MeetingId = meetings.ID AND attendees.ID = meetings.Owner_ID
+                   WHERE meeting.StartTime >= thisMonthFirstDay AND meeting.EndTime < nextMonthFirstDay
+                   ORDER BY m.StartTime ASC;
+             */
             var ownMeetings = currentAttendee.OwnMeetings.Where(m => m.StartTime >= thisMonthFirstDay && m.EndTime < nextMonthFirstDay).OrderBy(m => m.StartTime).ToList();
+            // Get the current user's attending meetings (not necessarily ones they own)
             var attendingMeetings = currentAttendee.AttendingMeetings.Where(m => m.StartTime >= thisMonthFirstDay && m.EndTime < nextMonthFirstDay).OrderBy(m => m.StartTime).ToList();
 
+            // Attach the username, the user's meetings, their own meetings,
+            // and attending meetings to the global ViewBag object for the 
+            // Razor templating engine to use while rendering the home page
+            // template.
             ViewBag.username = currentAttendee.Username;
             ViewBag.meetings = ownMeetings.Union(attendingMeetings).ToList();
             ViewBag.ownMeetings = ownMeetings;
@@ -55,6 +79,7 @@ namespace MeetingCoordinator.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
+        [Authorize]
         public ActionResult RetrieveMeeting(int id)
         {
             var meetingResult = _db.Meetings.Find(id);
@@ -64,7 +89,7 @@ namespace MeetingCoordinator.Controllers
                 return Json(new { success = false, error = "No meeting with that ID found" }, JsonRequestBehavior.AllowGet);
             }
 
-            int attendeeID = Int32.Parse(User.Identity.Name);
+            int attendeeID = int.Parse(User.Identity.Name);
             return Json(new
             {
                 id = meetingResult.ID,
@@ -99,6 +124,7 @@ namespace MeetingCoordinator.Controllers
         /// <param name="month"></param>
         /// <returns></returns>
         [HttpGet]
+        [Authorize]
         public ActionResult GetMeetingsForMonth(DateTime month)
         {
             var attendeeID = Int32.Parse(User.Identity.Name);
@@ -136,6 +162,7 @@ namespace MeetingCoordinator.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Authorize]
         public ActionResult GetSchedulingData()
         {
             var attendeesList = new List<Attendee>();
@@ -179,6 +206,7 @@ namespace MeetingCoordinator.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
+        [Authorize]
         public ActionResult CheckAvailability()
         {
             var errors = new List<string>();
@@ -285,6 +313,7 @@ namespace MeetingCoordinator.Controllers
         /// If "success" is false, then "error" will exist. If "success" is true, then "member" will exist. 
         /// </returns>
         [HttpPost]
+        [Authorize]
         public ActionResult SaveMeeting()
         {
             // The id of the meeting sent by the client. If this is not null,
