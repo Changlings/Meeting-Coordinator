@@ -270,22 +270,38 @@ namespace MeetingCoordinator.Controllers
 
         /// <summary>
         /// Save a meeting. Will save a brand new meeting if user is creating one or will overwrite
-        /// an existing meeting if a user is editing a meeting.
+        /// an existing meeting if a user is editing a meeting. This also handles personal events.
+        /// In the event of updating a meeting, the record itself is not "updated" per se. Because 
+        /// of a technical limitation (by design) of Entity framework not updating related entities
+        /// when a base entity is changed, it is much easier and straightforward to "update"
+        /// a meeting by deleting it and then inserting a new one with the updated data. Entity 
+        /// Framework will handle deleting information on related Entities, so in essence this is the 
+        /// same as updating, but without having to work around Entity Framework.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// JSON response with members "success" denoting if the operation completed successfully,
+        /// "error" containing the error message if there was an error during saving,
+        /// and "member" containing the details of the meeting and old meeting that was updated (if that's what happened).
+        /// If "success" is false, then "error" will exist. If "success" is true, then "member" will exist. 
+        /// </returns>
         [HttpPost]
         public ActionResult SaveMeeting()
         {
+            // The id of the meeting sent by the client. If this is not null,
+            // then it is an existing meeting and will be updating it.
             var id = Request.Form.Get("id");
             var title = Request.Form.Get("title");
             var description = Request.Form.Get("description");
             var startTime = Request.Form.Get("start_time");
             var endTime = Request.Form.Get("end_time");
-            var attendeeID = Int32.Parse(User.Identity.Name);
+            // Get the id of the currently logged in user
+            var attendeeID = int.Parse(User.Identity.Name);
 
             // Create a personal event
             if (Request.Form.Get("is_personal_event") != null && Request.Form.Get("is_personal_event") != "false")
             {
+                // Create a new Meeting entity first. This is not 
+                // inserted into the database (yet)
                 var m = new Meeting
                 {
                     Title = title,
@@ -295,19 +311,30 @@ namespace MeetingCoordinator.Controllers
                     Owner = _db.Attendees.First(a => a.ID == attendeeID)
                 };
                 // Entity framework is being a nuisance. Hacking "updates" to a meeting
+                // If we were supplied a meeting id, we're going to "update" it
                 if (id != null)
                 {
+                    // Convert to an integer
                     var lookup_id = int.Parse(id);
+                    // Remove the meeting by looking it up by its id and scheduling it for a delete
                     this._db.Meetings.Remove(this._db.Meetings.First(mtng => mtng.ID == lookup_id));
+                    // Entity Framework actually saves changes and deletes the meeting
                     this._db.SaveChanges();
                 }
+                // Add the new Meeting entity to the current DB session
                 _db.Meetings.Add(m);
+                // And write it to the database
                 _db.SaveChanges();
+                
+                // Event creation was succesful, so send data back to the client
+                // so they can update their models and views
                 return Json(new
                 {
                     success = true,
                     meeting = new
                     {
+                        // This will be used by the client to 
+                        // update its view
                         oldMeetingID = id,
                         id = m.ID,
                         title = m.Title,
@@ -318,9 +345,12 @@ namespace MeetingCoordinator.Controllers
                 });
             }
 
-            // Create 
+            // Creating actual meetings (with rooms and attendees)
             var roomId = int.Parse(Request.Form.Get("room_id"));
 
+            // This data was passed to us as a comma-separated string
+            // and must be converted to a list of integers before passing
+            // to Entity Framework
             var attendeeIds = Request.Form.Get("attendee_ids[]");
             var attendeeIdList = (
                 from string s in attendeeIds.Split(',')
@@ -329,29 +359,37 @@ namespace MeetingCoordinator.Controllers
 
             
 
-            
+            // Create the new Meeting entity before inserting
             var meeting = new Meeting
             {
                 Title = title,
                 Description = description,
                 EndTime = DateTime.Parse(endTime),
                 StartTime = DateTime.Parse(startTime),
+                // Get actual attendees based on their IDS and attach them to this entity
                 Attendees = _db.Attendees.Where(a => attendeeIdList.Contains(a.ID)).ToList(),
+
                 HostingRoom = _db.Rooms.First(r => r.ID == roomId),
                 Owner = _db.Attendees.First(a => a.ID == attendeeID)
             };
 
             //putting this up here so i can use it in the json response
-            var oldMeeting = _db.Meetings.Find(Int32.Parse(id));
+            var oldMeeting = new Meeting();
+            oldMeeting.ID = -1;
             try
             {
+                // Same thing as with creating a personal event. If we're passed an ID,
+                // then we're going to "update" it by removing the old record and creating
+                // a new one
                 if (id != null)
-                    {
+                {
+                    oldMeeting = _db.Meetings.Find(int.Parse(id));
                     this._db.Meetings.Remove(this._db.Meetings.Find(int.Parse(id)));
                 }
 
                 this._db.Meetings.Add(meeting);
                 this._db.SaveChanges();
+
                 return Json(new
                 {
                     success = true,
@@ -368,21 +406,47 @@ namespace MeetingCoordinator.Controllers
             }
             catch (Exception e)
             {
+                // Catch all exceptions so the server doesn't fail to 
+                // respond to this request. Send the error message so
+                // someone can debug it later on
                 return Json(new { success = false, error = e.Message });
             }
         }
 
-        // SUPER INSECURE BUT IIS IS REALY STUPID
-        // ABOUT DELETE VERBS
+        /// <summary>
+        /// Delete a meeting based on its ID. Using a GET request is incredibly
+        /// insecure and this would be properly done with a DELETE HTTP verb on a
+        /// real production server. However, for demo purposes, this works.
+        /// </summary>
+        /// <param name="id">The ID of the meeting to delete</param>
+        /// <returns></returns>
         [HttpGet]
+        [Authorize]
         public ActionResult DeleteMeeting(int id)
         {
             try
             {
-                this._db.Meetings.Remove(this._db.Meetings.First(m => m.ID == id));
+                // Get the ID of the currently logged in user
+                var currentAttendee = int.Parse(User.Identity.Name);
+                // find the meeting (if it exists)
+                var meeting = this._db.Meetings.First(m => m.ID == id);
+                // Only owners can delete their meetings
+                if (meeting.Owner.ID != currentAttendee)
+                {
+                    // This will be caught by the outside catch statement
+                    throw new Exception(@"You do not have privileges to delete this meeting");
+                }
+                // Schedule the meeting for removal
+                this._db.Meetings.Remove(meeting);
+                // Entity Framework, delete this entity!
                 this._db.SaveChanges();
+                // Return a response signifying success
                 return Json(new { success = true }, JsonRequestBehavior.AllowGet);
             }
+            // Catch-all Exception block. This will prevent the 
+            // server from crashing totally on a failed request
+            // for whatever reason. This will also catch the 
+            // permission check error if it fails that.
             catch (Exception e)
             {
                 return Json(new { success = false, error = e.Message }, JsonRequestBehavior.AllowGet);
