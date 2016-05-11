@@ -76,7 +76,7 @@ namespace MeetingCoordinator.Controllers
         /// Will remove the current Attendee from the list of All Attendees
         /// passed to the view from here
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The meeting id to use to find the meeting in the database</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize]
@@ -104,12 +104,13 @@ namespace MeetingCoordinator.Controllers
                     FirstName = a.FirstName,
                     LastName = a.LastName
                 }),
-                allAttendees = _db.Attendees.Select(a => new
+                allAttendees = _db.Attendees.Where(a => a.ID != attendeeID)
+                .Select(a => new
                 {
                     ID = a.ID,
                     FirstName = a.FirstName,
                     LastName = a.LastName
-                }).Where(a => a.ID != attendeeID),
+                }),
                 allRooms = _db.Rooms.Select(r => new
                 {
                     ID = r.ID,
@@ -127,7 +128,7 @@ namespace MeetingCoordinator.Controllers
         [Authorize]
         public ActionResult GetMeetingsForMonth(DateTime month)
         {
-            var attendeeID = Int32.Parse(User.Identity.Name);
+            var attendeeID = int.Parse(User.Identity.Name);
             var currentAttendee = _db.Attendees.First(a => a.ID == attendeeID);
 
             var endTime = month.AddMonths(1);
@@ -160,41 +161,31 @@ namespace MeetingCoordinator.Controllers
         /// This method will remove the logged in attendee from the list of attendees as the logged in attendee will always be
         /// the Owner Attendee for any meetings that they can edit or create. 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON with rooms and attendees (excluding the current attendee)</returns>
         [HttpGet]
         [Authorize]
         public ActionResult GetSchedulingData()
         {
-            var attendeesList = new List<Attendee>();
-            var roomsList = new List<Room>();
+            // Get the current user's ID
+            int currentAttendeeID = int.Parse(User.Identity.Name);
 
-            attendeesList.AddRange(_db.Attendees);
-            roomsList.AddRange(_db.Rooms);
-
-            int currentAttendeeID = Int32.Parse(User.Identity.Name);
-            Attendee currentAttendee = _db.Attendees.First(a => a.ID == currentAttendeeID);
-            attendeesList.Remove(currentAttendee);
-
-            JsonResult result = Json(new
+            // Return all rooms and attendees (not including the current logged in attendee) 
+            return Json(new
             {
                 status = true,
-                attendees = attendeesList.Select(a => new
+                attendees = this._db.Attendees.Where(a => a.ID != currentAttendeeID).Select(a => new Attendee
                 {
                     ID = a.ID,
                     FirstName = a.FirstName,
                     LastName = a.LastName
-                }),
-
-                rooms = roomsList.Select(r => new
+                }).ToList(),
+                rooms = this._db.Rooms.Select(r => new Room
                 {
                     ID = r.ID,
                     RoomNo = r.RoomNo
-                })
+                }).ToList()
 
             }, JsonRequestBehavior.AllowGet);
-
-
-            return result;
         }
 
         /// <summary>
@@ -235,7 +226,7 @@ namespace MeetingCoordinator.Controllers
                 if(currentMeetingID != null)
                 {
                     //don't check this meeting if currentMeetingID is passed ot this method (aka, if we're editing a meeting instead of creating a new one)
-                    if(Int32.Parse(currentMeetingID) == m.ID)
+                    if(int.Parse(currentMeetingID) == m.ID)
                     {
                         continue;
                     }
@@ -245,7 +236,7 @@ namespace MeetingCoordinator.Controllers
                 meetingAvailable = false;
             }
 
-            int currentAttendeeID = Int32.Parse(User.Identity.Name);
+            int currentAttendeeID = int.Parse(User.Identity.Name);
             Attendee currentAttendee = _db.Attendees.First(a => a.ID == currentAttendeeID);
             var overlappingMeetings = _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).ToList();
             foreach (Meeting m in overlappingMeetings)
@@ -254,7 +245,7 @@ namespace MeetingCoordinator.Controllers
                 if (currentMeetingID != null)
                 {
                     //don't check this meeting if currentMeetingID is passed ot this method (aka, if we're editing a meeting instead of creating a new one)
-                    if (Int32.Parse(currentMeetingID) == m.ID)
+                    if (int.Parse(currentMeetingID) == m.ID)
                     {
                         continue;
                     }
@@ -281,7 +272,10 @@ namespace MeetingCoordinator.Controllers
                     meetingAvailable = false;
                 }
             }
-
+            // Check for boundary condition
+            // End times cannot be before start times
+            // and the times cannot be equal... that would
+            // be a short meeting!
             if (endDateTime <= startDateTime)
             {
                 errors.Add("End date and time must be after start date and time.");
