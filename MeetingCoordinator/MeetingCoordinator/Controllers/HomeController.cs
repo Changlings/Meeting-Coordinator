@@ -181,13 +181,13 @@ namespace MeetingCoordinator.Controllers
             return Json(new
             {
                 status = true,
-                attendees = this._db.Attendees.Where(a => a.ID != currentAttendeeID).Select(a => new Attendee
+                attendees = this._db.Attendees.Where(a => a.ID != currentAttendeeID).Select(a => new 
                 {
                     ID = a.ID,
                     FirstName = a.FirstName,
                     LastName = a.LastName
                 }).ToList(),
-                rooms = this._db.Rooms.Select(r => new Room
+                rooms = this._db.Rooms.Select(r => new 
                 {
                     ID = r.ID,
                     RoomNo = r.RoomNo
