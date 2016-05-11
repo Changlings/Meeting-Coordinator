@@ -254,7 +254,7 @@
     $(document).on({
         click: function (e) {
             // As the user to confirm and warn them that what they're attempting to do is permanent
-            if (confirm("Are you sure you wish to remove this meeting? This cannot be undone!")) {
+            if (confirm("Are you sure you wish to remove this meeting/event? This cannot be undone!")) {
                 // Alright... they asked for it
                 // Find the meeting item and get the details from it
                 var eventListItem = $(this).closest(".external-event");
@@ -517,11 +517,11 @@
                 if (response.success) {
                     //only want to append the new meeting if we're creating one
                     if (modal === '#meeting-create') {
-                        alert("Meeting created!");
+                        alert("Meeting/Event created!");
                         $('#external-events').append('<div class="external-event">' + '<span class="meeting" data-is-personal-event="' + response.meeting.is_personal_event + '" data-title="' + title + '" data-attendees="' + attendee_ids.join(",") + '" data-id="' + response.meeting.id + '">' + title + '</span>' + '<span class="pull-right">' + '<i class="edit-meeting fa fa-pencil"></i>' + '<i style="padding-left: 5px; padding-right: 5px;"></i>' + '<i class="delete-meeting fa fa-times"></i>' + '</span>');
                         $('#calendar').fullCalendar('renderEvent', response.meeting);
                     } else if (modal === '#meeting-edit') {
-                        alert("Meeting updated!");
+                        alert("Meeting?Event updated!");
 
                         //find the span that holds an event with the old meeting ID, get its parent external-event and remove it from the events list
                         var oldMeetingSpan = $('#external-events').find('div[class=external-event]').find('span[data-id=' + response.meeting.oldMeetingID + ']');
