@@ -12,7 +12,7 @@ namespace MeetingCoordinator
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-
+            // Using MVC .NET's default routing schema
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

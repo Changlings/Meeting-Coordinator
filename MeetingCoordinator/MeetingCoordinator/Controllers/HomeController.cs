@@ -77,19 +77,22 @@ namespace MeetingCoordinator.Controllers
         /// passed to the view from here
         /// </summary>
         /// <param name="id">The meeting id to use to find the meeting in the database</param>
-        /// <returns></returns>
+        /// <returns>All meeting information required for the client to change its view</returns>
         [HttpGet]
         [Authorize]
         public ActionResult RetrieveMeeting(int id)
         {
             var meetingResult = _db.Meetings.Find(id);
 
+            // If there was not a meeting, send out an error
             if (meetingResult == null)
             {
                 return Json(new { success = false, error = "No meeting with that ID found" }, JsonRequestBehavior.AllowGet);
             }
 
+            // Get the id of the currently logged in user
             int attendeeID = int.Parse(User.Identity.Name);
+            // Return JSON with all information about the meeting
             return Json(new
             {
                 id = meetingResult.ID,
@@ -98,12 +101,14 @@ namespace MeetingCoordinator.Controllers
                 startTime = meetingResult.StartTime,
                 endTime = meetingResult.EndTime,
                 selectedRoom = meetingResult.HostingRoom,
+                // Get all attendees for this meeting
                 selectedAttendees = meetingResult.Attendees.Select(a => new
                 {
                     ID = a.ID,
                     FirstName = a.FirstName,
                     LastName = a.LastName
                 }),
+                // Get *ALL* attendees except the currently logged in attendee
                 allAttendees = _db.Attendees.Where(a => a.ID != attendeeID)
                 .Select(a => new
                 {
@@ -111,6 +116,7 @@ namespace MeetingCoordinator.Controllers
                     FirstName = a.FirstName,
                     LastName = a.LastName
                 }),
+                // Get all the roooms
                 allRooms = _db.Rooms.Select(r => new
                 {
                     ID = r.ID,
@@ -120,10 +126,12 @@ namespace MeetingCoordinator.Controllers
         }
 
         /// <summary>
-        /// Get all meetings for the current Attendee for the selected month
+        /// Get all meetings for the current Attendee for the selected month. This 
+        /// is called when the monthly calendar is changed from month to month. Only
+        /// fetches for the currently logged in user
         /// </summary>
-        /// <param name="month"></param>
-        /// <returns></returns>
+        /// <param name="month">The month to get events and meetings for</param>
+        /// <returns>Json with the meetings and events for the month</returns>
         [HttpGet]
         [Authorize]
         public ActionResult GetMeetingsForMonth(DateTime month)
@@ -218,8 +226,16 @@ namespace MeetingCoordinator.Controllers
             var startDateTime = DateTime.Parse(startDateTimeString);
             var endDateTime = DateTime.Parse(endDateTimeString);
 
-            //if an existing meeting is already using the selected room at the selected time
+            
             Room room = _db.Rooms.First(r => r.ID == selectedRoomId);
+
+            // Check if the room can hold all the attendees (plus the owner)
+            if (room.Capacity < attendeeList.Count + 1)
+            {
+                errors.Add("Room " + room.RoomNo + " has a capacity of " + room.Capacity + " and cannot accommodate your " + (attendeeList.Count + 1) + " person party!");
+                meetingAvailable = false;
+            }
+            //if an existing meeting is already using the selected room at the selected time
             foreach (var m in _db.Meetings.Where(m => startDateTime <= m.EndTime && m.StartTime <= endDateTime).Where(m => selectedRoomId == m.HostingRoom.ID))
             {
                 //don't check the meeting being edited if the user is editing a meeting rather than creating a new one
@@ -235,6 +251,7 @@ namespace MeetingCoordinator.Controllers
                 errors.Add("Room " + room.RoomNo + " is already in use during this time.");
                 meetingAvailable = false;
             }
+
 
             int currentAttendeeID = int.Parse(User.Identity.Name);
             Attendee currentAttendee = _db.Attendees.First(a => a.ID == currentAttendeeID);

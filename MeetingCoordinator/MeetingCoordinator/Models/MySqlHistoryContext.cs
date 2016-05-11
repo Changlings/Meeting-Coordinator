@@ -8,19 +8,23 @@ using System.Web;
 
 namespace MeetingCoordinator.Models
 {
-  public class MySqlHistoryContext : HistoryContext
-  {
-    public MySqlHistoryContext(
-      DbConnection existingConnection,
-      string defaultSchema)
-    : base(existingConnection, defaultSchema)
+    /// <summary>
+    /// Essential for getting migrations in Entity Framework
+    /// to work with MySQL.
+    /// </summary>
+    public class MySqlHistoryContext : HistoryContext
     {
-    }
+        public MySqlHistoryContext(
+          DbConnection existingConnection,
+          string defaultSchema)
+        : base(existingConnection, defaultSchema)
+        {
+        }
 
-    protected override void OnModelCreating(DbModelBuilder modelBuilder)
-    {
-      modelBuilder.Properties<String>().Configure(c => c.HasColumnType("longtext"));
-      base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Properties<string>().Configure(c => c.HasColumnType("longtext"));
+            base.OnModelCreating(modelBuilder);
+        }
     }
-  }
 }

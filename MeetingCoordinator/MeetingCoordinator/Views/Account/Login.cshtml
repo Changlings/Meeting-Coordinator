@@ -17,6 +17,7 @@
                     @ViewBag.Title
                 </h2>
             </div>
+            <!-- Username text box -->
             <div class="row">
                 <div class="form-group">
                     @Html.LabelFor(m => m.Username, new {@class = "form-label"})
@@ -28,6 +29,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Password text box-->
             <div class="row">
                 <div class="form-group">
                     @Html.LabelFor(m => m.Password, new {@class = "form-label"})
@@ -40,14 +42,6 @@
                     </div>
                 </div>
             </div>
-            @*<div class="row">
-                <div class="control-group">
-                    <div class="checkbox checkbox check-success">
-                        @Html.CheckBoxFor(m => m.RememberMe, new {@class = "form-control"})
-                        @Html.LabelFor(m => m.RememberMe)
-                    </div>
-                </div>
-            </div>*@
             <div class="row">
                 <button class="btn btn-primary btn-cons pull-right" type="submit">Login</button>
             </div>

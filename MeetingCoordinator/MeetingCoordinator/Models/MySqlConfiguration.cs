@@ -6,12 +6,16 @@ using System.Web;
 
 namespace MeetingCoordinator.Models
 {
-  public class MySqlConfiguration : DbConfiguration
-  {
-    public MySqlConfiguration()
+    /// <summary>
+    /// This class is essential to get MySQL working with
+    /// Entity Framework to enable Migrations
+    /// </summary>
+    public class MySqlConfiguration : DbConfiguration
     {
-      SetHistoryContext(
-      "MySql.Data.MySqlClient", (conn, schema) => new MySqlHistoryContext(conn, schema));
+        public MySqlConfiguration()
+        {
+            SetHistoryContext(
+            "MySql.Data.MySqlClient", (conn, schema) => new MySqlHistoryContext(conn, schema));
+        }
     }
-  }
 }

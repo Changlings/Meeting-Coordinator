@@ -1,18 +1,13 @@
 ﻿@using System.Web.UI.WebControls
 @using MeetingCoordinator.Controllers
-<!-- BEGIN SIDEBAR -->
-<!-- BEGIN MENU -->
 <div class="page-sidebar" id="main-menu">
   <div class="page-sidebar-wrapper scrollbar-dynamic" id="main-menu-wrapper">
-    <!-- BEGIN MINI-PROFILE -->
     <div class="user-info-wrapper">
       <div class="user-info">
         <div class="greeting">Welcome</div>
         <div class="username">@(ViewBag.username.Length > 0 ? ViewBag.username : "Attendee")</div>
       </div>
     </div>
-    <!-- END MINI-PROFILE -->
-    <!-- BEGIN SIDEBAR MENU -->
     <ul>
       <li class="@(Request.Url.PathAndQuery == "/" || Request.Url.PathAndQuery == "/Home/Index" ? "start selected" : "")">
         <a href="/">
@@ -35,10 +30,6 @@
         </a>
       </li>
     </ul>
-    <!-- END SIDEBAR MENU -->
     <div class="clearfix"></div>
-    <!-- END SIDEBAR WIDGETS -->
   </div>
 </div>
-<!-- END MENU -->
-<!-- END SIDEBAR -->

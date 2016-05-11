@@ -15,11 +15,11 @@ namespace MeetingCoordinator
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
-
+            // Configure bundles for core Bootstrap css
             bundles.Add(new StyleBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/plugins/bootstrapv3/css/bootstrap.min.css",
                       "~/Scripts/plugins/bootstrapv3/css/bootstrap-theme.min.css"));
-
+            // All of the other miscellaneous theme related css
             bundles.Add(new StyleBundle("~/bundles/theme").Include(
                       "~/Scripts/plugins/jquery-scrollbar/jquery.scrollbar.css",
                       "~/Scripts/plugins/font-awesome/css/font-awesome.css",
@@ -28,7 +28,7 @@ namespace MeetingCoordinator
                       "~/Scripts/css/responsive.css",
                       "~/Scripts/css/custom-icon-set.css",
                       "~/Scripts/plugins/fullcalendar/fullcalendar.css"));
-
+            // All of the javascript required to run this application's front-end
             bundles.Add(new ScriptBundle("~/bundles/javascript").Include(
                       "~/Scripts/plugins/jquery-1.8.3.min.js",
                       "~/Scripts/plugins/jquery-ui/jquery-ui-1.10.1.custom.min.js",

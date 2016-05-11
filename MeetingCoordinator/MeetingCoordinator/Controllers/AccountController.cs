@@ -20,29 +20,42 @@ namespace MeetingCoordinator.Controllers
     [Authorize]
     public class AccountController : Controller
     {
+        /// <summary>
+        /// The database connection context for this controller. This is used to interact
+        /// with the database via Entity Framework
+        /// </summary>
         private ApplicationDbContext db = new ApplicationDbContext();
+        /// <summary>
+        /// Initialize the OWIN library to handle authentication
+        /// </summary>
         private IAuthenticationManager Authentication => HttpContext.GetOwinContext().Authentication;
-        public AccountController()
-        {
-        }
 
-        //
-        // GET: /Account/Login
+        /// <summary>
+        /// Displays the login page. Also prevents already logged in users
+        /// from seeing the page.
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
-
+            // Prevent already signed-in users from attempting to sign in 
+            // again by redirecting them to the /Home/Index route
             if (Authentication.User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Home");
             }
-
+            // Display the Login page
             return View();
         }
 
-        //this will only be called if the username and password fields are not empty when submit button is pressed
+        /// <summary>
+        /// This will only be called if the username and password fields are not empty when submit button is pressed
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         public ActionResult Login(LoginViewModel model)
@@ -50,8 +63,11 @@ namespace MeetingCoordinator.Controllers
             Attendee attendee = null;
             try
             {
-               attendee = db.Attendees.First(u => u.Username == model.Username);
+                attendee = db.Attendees.First(u => u.Username == model.Username);
             }
+            // Entity Framework will throw an exception on failing to find a record with the 
+            // First method. If that happens, there was not a user located and the view needs
+            // to be updated accordingly to show that
             catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "No User by that name");
@@ -61,47 +77,61 @@ namespace MeetingCoordinator.Controllers
             //if the attendee user name is found
             if (attendee.Username == model.Username)
             {
-                //get the attendees hashed password
-                String hashedPassword = hashSha256(model.Password);
-                if (attendee.Password == hashedPassword)
+                //get the attendees hashed password and compare the hashed results
+                // since we don't store plain text (non-hashed) passwords 
+                // in the database
+                if (attendee.Password == hashSha256(model.Password))
                 {
-                    
+                    // Initialize the OWIN managed session handler for this user
                     var identity = new ClaimsIdentity(
                     new[]
                         {
+                            // User.Identity.Name will be the string representation of the attendee's ID
                             new Claim(ClaimTypes.NameIdentifier, $"{attendee.ID}"),
-                            new Claim(ClaimTypes.Role, "attendee"), 
-                        }, 
+                            new Claim(ClaimTypes.Role, "attendee"),
+                        },
+                        // Persist this authentication as a cookie on the client
                         DefaultAuthenticationTypes.ApplicationCookie,
                         ClaimTypes.NameIdentifier, ClaimTypes.Role
                     );
-
+                    // "Sign in" the user into the OWIN context to have their 
+                    // Identity persist and be accessible throughout the application
                     Authentication.SignIn(new AuthenticationProperties
                     {
                         IsPersistent = model.RememberMe
                     }, identity);
-
+                    // Redirect the browser to the home page
                     return RedirectToAction("Index", "Home");
                 }
             }
-
+            // This message is shown if the username is found but 
+            // the password was incorrect
             ModelState.AddModelError(string.Empty, "Invalid login credentials");
             return View(model);
         }
 
+        /// <summary>
+        /// Log out the currently logged in user and redirect them to the login page
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         public ActionResult Logout()
         {
-          AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-          return RedirectToAction("Login");
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            return RedirectToAction("Login");
         }
 
-        public String hashSha256(String password)
+        /// <summary>
+        /// Utilty function to apply the SHA 256 hashing algorithm to incoming
+        /// passwords.
+        /// </summary>
+        /// <param name="password">The password string to hash</param>
+        /// <returns>The unique SHA 256 hash of the password</returns>
+        public string hashSha256(string password)
         {
-            SHA256Managed crypt = new SHA256Managed();
-            System.Text.StringBuilder hash = new System.Text.StringBuilder();
+            var crypt = new SHA256Managed();
+            var hash = new System.Text.StringBuilder();
 
-            //TODO: people were reporting problems with using ASCII as the encoding scheme, but I don't know enough to say that UTF8 is the correct choice for us
             byte[] hashBytes = crypt.ComputeHash(Encoding.UTF8.GetBytes(password), 0, Encoding.UTF8.GetByteCount(password));
 
             foreach (byte b in hashBytes)
@@ -114,7 +144,7 @@ namespace MeetingCoordinator.Controllers
         }
 
 
-       
+
         #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";

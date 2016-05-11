@@ -1,33 +1,37 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta content="@ViewBag.Description" name="description" />
-  <meta content="The Changlings" name="author" />
-  <title>@ViewBag.Title</title>
-  @Scripts.Render("~/bundles/modernizr")
-  @Styles.Render("~/bundles/bootstrap", "~/bundles/theme")
-  @RenderSection("styles", required: false)
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="@ViewBag.Description" name="description" />
+    <meta content="The Changlings" name="author" />
+    <title>@ViewBag.Title</title>
+    @*
+        Render the modernizr, bootstrap, and theme bundles 
+        defined in ~/App_Start/BundleConfig.cs
+    *@
+    @Scripts.Render("~/bundles/modernizr")
+    @Styles.Render("~/bundles/bootstrap", "~/bundles/theme")
+    @RenderSection("styles", required: false)
 </head>
 <body class="">
-  <div class="header navbar navbar-inverse">
-    <div class="navbar-inner">
-      @Html.Partial("_NavigationHeaderPartial")
-      @Html.Partial("_ContentHeaderPartial")
+    <div class="header navbar navbar-inverse">
+        <div class="navbar-inner">
+            @Html.Partial("_NavigationHeaderPartial")
+            @Html.Partial("_ContentHeaderPartial")
+        </div>
     </div>
-  </div>
-  <div class="page-container row-fluid">
-    @Html.Partial("_SidebarPartial")
-    <div class="page-content">
-      <div class="content">
-        @Html.Partial("_CreateMeetingPartial")
-        @RenderBody()
-      </div>
+    <div class="page-container row-fluid">
+        @Html.Partial("_SidebarPartial")
+        <div class="page-content">
+            <div class="content">
+                @Html.Partial("_CreateMeetingPartial")
+                @RenderBody()
+            </div>
+        </div>
     </div>
-  </div>
-  @Scripts.Render("~/bundles/javascript")
-  @RenderSection("scripts", required: false)
+    @Scripts.Render("~/bundles/javascript")
+    @RenderSection("scripts", required: false)
 </body>
 </html>
